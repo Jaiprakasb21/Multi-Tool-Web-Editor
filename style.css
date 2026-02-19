@@ -9,8 +9,12 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
+    /* Performance optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* Performance: Use transform instead of position changes */
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -18,6 +22,9 @@ body {
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     overflow: hidden;
+    /* GPU acceleration */
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 .header {
@@ -147,6 +154,15 @@ button:hover {
     max-height: 600px;
     overflow: auto;
     line-height: 1.6;
+    /* Performance optimizations */
+    contain: layout style paint;
+    will-change: scroll-position;
+}
+
+.json-truncated {
+    color: #a0aec0;
+    font-style: italic;
+    padding: 5px 0;
 }
 
 .json-key {
@@ -1301,4 +1317,49 @@ button:hover {
     .export-filename input {
         width: 100%;
     }
+}
+
+
+/* Performance Optimizations */
+.section {
+    /* Contain layout calculations */
+    contain: layout style;
+}
+
+.section.active {
+    /* Only active sections need paint containment */
+    contain: layout style paint;
+}
+
+/* Optimize animations */
+button {
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Optimize scrolling */
+textarea,
+.json-output,
+.frequency-bars,
+#jsonOutput {
+    /* Enable smooth scrolling with GPU */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Reduce repaints for images */
+img,
+canvas {
+    image-rendering: -webkit-optimize-contrast;
+    transform: translateZ(0);
+}
+
+/* Optimize large lists */
+.diff-item,
+.frequency-item,
+.json-line {
+    contain: layout;
 }

@@ -12,7 +12,12 @@ document.addEventListener('DOMContentLoaded', function() {
             sections.forEach(s => s.classList.remove('active'));
             
             btn.classList.add('active');
-            document.getElementById(`${tab}Section`).classList.add('active');
+            const targetSection = document.getElementById(`${tab}Section`);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                // Clean up previous section to free memory
+                cleanupInactiveSections(tab);
+            }
         });
     });
 
@@ -38,7 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (exportWithNameBtn) {
         exportWithNameBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Export with name button clicked');
             exportJSONWithName();
         });
     }
@@ -253,6 +257,30 @@ let cropEnd = null;
 let isDrawing = false;
 let savedImageData = null;
 
+// Performance optimization: Cleanup function
+function cleanupInactiveSections(activeTab) {
+    // Clear canvas when leaving image editor
+    if (activeTab !== 'image' && originalImage) {
+        const canvas = document.getElementById('imageCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        savedImageData = null;
+    }
+    
+    // Clear preview areas when not in use
+    if (activeTab !== 'base64') {
+        const previewArea = document.getElementById('previewArea');
+        if (previewArea) previewArea.innerHTML = '';
+    }
+    
+    if (activeTab !== 'fileAnalyzer') {
+        const filePreviewArea = document.getElementById('filePreviewArea');
+        if (filePreviewArea) filePreviewArea.innerHTML = '';
+    }
+}
+
 function formatJSON() {
     const input = jsonInput.value.trim();
     
@@ -263,8 +291,12 @@ function formatJSON() {
     
     try {
         parsedData = JSON.parse(input);
-        jsonOutput.innerHTML = renderJSON(parsedData);
-        attachToggleListeners();
+        
+        // Use requestAnimationFrame for smoother rendering
+        requestAnimationFrame(() => {
+            jsonOutput.innerHTML = renderJSON(parsedData);
+            attachToggleListeners();
+        });
     } catch (error) {
         jsonOutput.innerHTML = `<div class="error-message">Invalid JSON: ${error.message}</div>`;
     }
@@ -278,7 +310,9 @@ function renderJSON(data, level = 0) {
     }
     
     if (typeof data === 'string') {
-        return `<span class="json-string">"${escapeHtml(data)}"</span>`;
+        // Truncate very long strings for performance
+        const displayStr = data.length > 1000 ? data.substring(0, 1000) + '...' : data;
+        return `<span class="json-string">"${escapeHtml(displayStr)}"</span>`;
     }
     
     if (typeof data === 'number') {
@@ -301,12 +335,18 @@ function renderJSON(data, level = 0) {
         html += `</div>`;
         html += `<div class="json-content" id="${id}" style="padding-left: ${indent + 20}px">`;
         
-        data.forEach((item, index) => {
+        // Limit rendering for very large arrays
+        const maxItems = data.length > 100 ? 100 : data.length;
+        for (let i = 0; i < maxItems; i++) {
             html += `<div class="json-line">`;
-            html += `<span class="json-key">[${index}]:</span> `;
-            html += renderJSON(item, level + 1);
+            html += `<span class="json-key">[${i}]:</span> `;
+            html += renderJSON(data[i], level + 1);
             html += `</div>`;
-        });
+        }
+        
+        if (data.length > 100) {
+            html += `<div class="json-line"><span class="json-truncated">... ${data.length - 100} more items</span></div>`;
+        }
         
         html += `</div>`;
         return html;
@@ -442,9 +482,6 @@ function hideExportOptions() {
 }
 
 function exportJSONWithName() {
-    console.log('exportJSONWithName called');
-    console.log('parsedData:', parsedData);
-    
     if (!parsedData) {
         alert('No JSON to export. Please format JSON first.');
         return;
@@ -452,8 +489,6 @@ function exportJSONWithName() {
     
     const filenameInput = document.getElementById('exportFilename');
     let filename = filenameInput ? filenameInput.value.trim() : '';
-    
-    console.log('Original filename:', filename);
     
     // If no filename provided, use default
     if (!filename) {
@@ -468,8 +503,6 @@ function exportJSONWithName() {
     // Sanitize filename - allow letters, numbers, spaces, hyphens, underscores
     filename = filename.replace(/[^a-z0-9\s_-]/gi, '_');
     
-    console.log('Final filename:', filename);
-    
     try {
         const formatted = JSON.stringify(parsedData, null, 2);
         const blob = new Blob([formatted], { type: 'application/json' });
@@ -481,7 +514,6 @@ function exportJSONWithName() {
         link.style.display = 'none';
         document.body.appendChild(link);
         
-        console.log('Triggering download:', link.download);
         link.click();
         
         setTimeout(() => {
@@ -499,10 +531,7 @@ function exportJSONWithName() {
                 hideExportOptions();
             }, 1500);
         }
-        
-        console.log('Export completed successfully');
     } catch (error) {
-        console.error('Export error:', error);
         alert('Error exporting file: ' + error.message);
     }
 }
