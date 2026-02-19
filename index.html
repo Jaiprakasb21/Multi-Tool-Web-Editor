@@ -16,6 +16,8 @@
                 <button class="tab-btn" data-tab="image">Image Editing</button>
                 <button class="tab-btn" data-tab="base64">Base64 Converter</button>
                 <button class="tab-btn" data-tab="hash">Hash Generator</button>
+                <button class="tab-btn" data-tab="text">Text Summary</button>
+                <button class="tab-btn" data-tab="fileAnalyzer">File Analyzer</button>
             </div>
         </div>
         
@@ -200,6 +202,150 @@
                         <div class="hash-output-box">
                             <input type="text" id="sha512Output" readonly placeholder="SHA-512 hash will appear here...">
                             <button class="copy-hash-btn" data-target="sha512Output">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Summary Section -->
+        <div id="textSection" class="section">
+            <div class="text-summary-container">
+                <div class="text-input-area">
+                    <div class="panel-header">
+                        <h3>Text Input</h3>
+                        <button class="reset-btn" id="resetTextBtn">Clear</button>
+                    </div>
+                    <textarea id="textAnalysisInput" placeholder="Enter or paste your text here for analysis..."></textarea>
+                    <button id="analyzeTextBtn">Analyze Text</button>
+                </div>
+                
+                <div class="text-stats-area">
+                    <h3>Summary Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalChars">0</div>
+                            <div class="stat-label">Total Characters</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="charsNoSpaces">0</div>
+                            <div class="stat-label">Characters (no spaces)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="wordCount">0</div>
+                            <div class="stat-label">Words</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="sentenceCount">0</div>
+                            <div class="stat-label">Sentences</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="paragraphCount">0</div>
+                            <div class="stat-label">Paragraphs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="lineCount">0</div>
+                            <div class="stat-label">Lines</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="alphabetCount">0</div>
+                            <div class="stat-label">Alphabets</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="numberCount">0</div>
+                            <div class="stat-label">Numbers</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="spaceCount">0</div>
+                            <div class="stat-label">Spaces</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="specialCharCount">0</div>
+                            <div class="stat-label">Special Characters</div>
+                        </div>
+                    </div>
+                    
+                    <div class="letter-frequency">
+                        <h4>Letter Frequency</h4>
+                        <div id="letterFrequencyChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Type Analyzer Section -->
+        <div id="fileAnalyzerSection" class="section">
+            <div class="file-analyzer-container">
+                <div class="file-upload-panel">
+                    <div class="panel-header">
+                        <h3>File Type Analyzer</h3>
+                        <button class="reset-btn" id="resetFileAnalyzerBtn">Clear</button>
+                    </div>
+                    <div class="upload-area" id="fileDropArea">
+                        <input type="file" id="fileAnalyzerInput" style="display: none;">
+                        <div class="upload-icon">📁</div>
+                        <p>Click to upload or drag & drop a file</p>
+                        <span class="upload-hint">Supports images, PDFs, documents, and more</span>
+                    </div>
+                    
+                    <div id="fileInfoDisplay" class="file-info-display" style="display: none;">
+                        <h4>File Information</h4>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">File Name:</span>
+                                <span class="info-value" id="fileName"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">File Type:</span>
+                                <span class="info-value" id="fileType"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">MIME Type:</span>
+                                <span class="info-value" id="mimeType"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">File Size:</span>
+                                <span class="info-value" id="fileSize"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Last Modified:</span>
+                                <span class="info-value" id="lastModified"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="file-preview" id="filePreviewArea"></div>
+                    </div>
+                </div>
+                
+                <div class="file-converter-panel">
+                    <h3>File Format Converter</h3>
+                    <p class="converter-note">Upload a file above to enable conversion options</p>
+                    
+                    <div id="converterOptions" style="display: none;">
+                        <div class="converter-section">
+                            <h4>Image Conversions</h4>
+                            <div class="conversion-buttons" id="imageConversions">
+                                <button class="convert-btn" data-format="png">Convert to PNG</button>
+                                <button class="convert-btn" data-format="jpeg">Convert to JPEG</button>
+                                <button class="convert-btn" data-format="webp">Convert to WebP</button>
+                            </div>
+                        </div>
+                        
+                        <div class="converter-section">
+                            <h4>Quality Settings (for JPEG/WebP)</h4>
+                            <div class="quality-control">
+                                <input type="range" id="qualitySlider" min="0.1" max="1" step="0.1" value="0.9">
+                                <span id="qualityValue">90%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="converter-section" id="pdfConversionSection" style="display: none;">
+                            <h4>PDF Conversions</h4>
+                            <p class="pdf-note">Note: PDF to image conversion shows first page only</p>
+                            <div class="conversion-buttons">
+                                <button class="convert-btn" data-format="pdf-to-png">PDF to PNG</button>
+                                <button class="convert-btn" data-format="pdf-to-jpeg">PDF to JPEG</button>
+                            </div>
                         </div>
                     </div>
                 </div>

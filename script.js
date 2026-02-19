@@ -133,6 +133,66 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('resetHashBtn').addEventListener('click', resetHash);
 
+    // Text Summary
+    const textAnalysisInput = document.getElementById('textAnalysisInput');
+    const analyzeTextBtn = document.getElementById('analyzeTextBtn');
+    const resetTextBtn = document.getElementById('resetTextBtn');
+    
+    analyzeTextBtn.addEventListener('click', analyzeText);
+    resetTextBtn.addEventListener('click', resetTextAnalysis);
+    
+    // Real-time analysis on input
+    textAnalysisInput.addEventListener('input', analyzeText);
+
+    // File Analyzer
+    const fileAnalyzerInput = document.getElementById('fileAnalyzerInput');
+    const fileDropArea = document.getElementById('fileDropArea');
+    const resetFileAnalyzerBtn = document.getElementById('resetFileAnalyzerBtn');
+    const qualitySlider = document.getElementById('qualitySlider');
+    const qualityValue = document.getElementById('qualityValue');
+    
+    let currentFile = null;
+    let currentFileType = null;
+    
+    fileDropArea.addEventListener('click', () => fileAnalyzerInput.click());
+    fileAnalyzerInput.addEventListener('change', handleFileAnalyzer);
+    resetFileAnalyzerBtn.addEventListener('click', resetFileAnalyzer);
+    
+    // Drag and drop
+    fileDropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileDropArea.style.borderColor = '#667eea';
+        fileDropArea.style.background = '#edf2f7';
+    });
+    
+    fileDropArea.addEventListener('dragleave', () => {
+        fileDropArea.style.borderColor = '#cbd5e0';
+        fileDropArea.style.background = 'white';
+    });
+    
+    fileDropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileDropArea.style.borderColor = '#cbd5e0';
+        fileDropArea.style.background = 'white';
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileAnalyzerInput.files = files;
+            handleFileAnalyzer();
+        }
+    });
+    
+    qualitySlider.addEventListener('input', (e) => {
+        qualityValue.textContent = Math.round(e.target.value * 100) + '%';
+    });
+    
+    // Conversion buttons
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('convert-btn')) {
+            const format = e.target.getAttribute('data-format');
+            convertFile(format);
+        }
+    });
+
     // Image Editor
     const imageInput = document.getElementById('imageInput');
     const uploadBtn = document.getElementById('uploadBtn');
@@ -1298,3 +1358,264 @@ function downloadImage() {
 }
 
 }); // End of DOMContentLoaded
+
+// Text Summary Functions
+function analyzeText() {
+    const text = textAnalysisInput.value;
+    
+    // Total characters
+    document.getElementById('totalChars').textContent = text.length;
+    
+    // Characters without spaces
+    const noSpaces = text.replace(/\s/g, '');
+    document.getElementById('charsNoSpaces').textContent = noSpaces.length;
+    
+    // Word count
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    document.getElementById('wordCount').textContent = words.length;
+    
+    // Sentence count
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    document.getElementById('sentenceCount').textContent = sentences.length;
+    
+    // Paragraph count
+    const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0);
+    document.getElementById('paragraphCount').textContent = paragraphs.length;
+    
+    // Line count
+    const lines = text.split(/\n/).filter(l => l.trim().length > 0);
+    document.getElementById('lineCount').textContent = lines.length;
+    
+    // Alphabet count
+    const alphabets = text.match(/[a-zA-Z]/g);
+    document.getElementById('alphabetCount').textContent = alphabets ? alphabets.length : 0;
+    
+    // Number count
+    const numbers = text.match(/[0-9]/g);
+    document.getElementById('numberCount').textContent = numbers ? numbers.length : 0;
+    
+    // Space count
+    const spaces = text.match(/\s/g);
+    document.getElementById('spaceCount').textContent = spaces ? spaces.length : 0;
+    
+    // Special character count
+    const specialChars = text.match(/[^a-zA-Z0-9\s]/g);
+    document.getElementById('specialCharCount').textContent = specialChars ? specialChars.length : 0;
+    
+    // Letter frequency
+    displayLetterFrequency(text);
+}
+
+function displayLetterFrequency(text) {
+    const letterCount = {};
+    const letters = text.toLowerCase().match(/[a-z]/g);
+    
+    if (!letters || letters.length === 0) {
+        document.getElementById('letterFrequencyChart').innerHTML = '<p class="no-data">No letters to analyze</p>';
+        return;
+    }
+    
+    // Count each letter
+    letters.forEach(letter => {
+        letterCount[letter] = (letterCount[letter] || 0) + 1;
+    });
+    
+    // Sort by frequency (descending)
+    const sortedLetters = Object.entries(letterCount).sort((a, b) => b[1] - a[1]);
+    
+    // Create visual chart
+    let html = '<div class="frequency-bars">';
+    const maxCount = sortedLetters[0][1];
+    
+    sortedLetters.forEach(([letter, count]) => {
+        const percentage = (count / maxCount) * 100;
+        html += `
+            <div class="frequency-item">
+                <div class="frequency-letter">${letter.toUpperCase()}</div>
+                <div class="frequency-bar-container">
+                    <div class="frequency-bar" style="width: ${percentage}%"></div>
+                </div>
+                <div class="frequency-count">${count}</div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    document.getElementById('letterFrequencyChart').innerHTML = html;
+}
+
+function resetTextAnalysis() {
+    textAnalysisInput.value = '';
+    document.getElementById('totalChars').textContent = '0';
+    document.getElementById('charsNoSpaces').textContent = '0';
+    document.getElementById('wordCount').textContent = '0';
+    document.getElementById('sentenceCount').textContent = '0';
+    document.getElementById('paragraphCount').textContent = '0';
+    document.getElementById('lineCount').textContent = '0';
+    document.getElementById('alphabetCount').textContent = '0';
+    document.getElementById('numberCount').textContent = '0';
+    document.getElementById('spaceCount').textContent = '0';
+    document.getElementById('specialCharCount').textContent = '0';
+    document.getElementById('letterFrequencyChart').innerHTML = '';
+}
+
+
+// File Analyzer Functions
+function handleFileAnalyzer() {
+    const file = fileAnalyzerInput.files[0];
+    if (!file) return;
+    
+    currentFile = file;
+    currentFileType = file.type;
+    
+    // Display file info
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileType').textContent = getFileExtension(file.name).toUpperCase();
+    document.getElementById('mimeType').textContent = file.type || 'Unknown';
+    document.getElementById('fileSize').textContent = formatFileSize(file.size);
+    document.getElementById('lastModified').textContent = new Date(file.lastModified).toLocaleString();
+    
+    document.getElementById('fileInfoDisplay').style.display = 'block';
+    
+    // Show preview
+    showFilePreview(file);
+    
+    // Show converter options
+    showConverterOptions(file);
+}
+
+function getFileExtension(filename) {
+    return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function showFilePreview(file) {
+    const previewArea = document.getElementById('filePreviewArea');
+    
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewArea.innerHTML = `
+                <h4>Preview</h4>
+                <img src="${e.target.result}" alt="Preview" style="max-width: 100%; border-radius: 8px; border: 2px solid #e2e8f0;">
+            `;
+        };
+        reader.readAsDataURL(file);
+    } else if (file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewArea.innerHTML = `
+                <h4>Preview</h4>
+                <embed src="${e.target.result}" type="application/pdf" style="width: 100%; height: 400px; border-radius: 8px; border: 2px solid #e2e8f0;">
+            `;
+        };
+        reader.readAsDataURL(file);
+    } else if (file.type.startsWith('text/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewArea.innerHTML = `
+                <h4>Preview</h4>
+                <pre style="background: #f7fafc; padding: 15px; border-radius: 8px; border: 2px solid #e2e8f0; max-height: 300px; overflow: auto;">${escapeHtml(e.target.result.substring(0, 1000))}</pre>
+            `;
+        };
+        reader.readAsText(file);
+    } else {
+        previewArea.innerHTML = `
+            <h4>Preview</h4>
+            <p style="color: #718096; font-style: italic;">Preview not available for this file type</p>
+        `;
+    }
+}
+
+function showConverterOptions(file) {
+    const converterOptions = document.getElementById('converterOptions');
+    const pdfSection = document.getElementById('pdfConversionSection');
+    const imageConversions = document.getElementById('imageConversions');
+    
+    converterOptions.style.display = 'block';
+    
+    if (file.type.startsWith('image/')) {
+        imageConversions.style.display = 'flex';
+        pdfSection.style.display = 'none';
+    } else if (file.type === 'application/pdf') {
+        imageConversions.style.display = 'none';
+        pdfSection.style.display = 'block';
+    } else {
+        converterOptions.style.display = 'none';
+    }
+}
+
+async function convertFile(format) {
+    if (!currentFile) {
+        alert('Please upload a file first');
+        return;
+    }
+    
+    const quality = parseFloat(qualitySlider.value);
+    
+    if (format === 'pdf-to-png' || format === 'pdf-to-jpeg') {
+        alert('PDF to image conversion requires a PDF rendering library. This is a browser limitation. Please use online tools or desktop software for PDF conversion.');
+        return;
+    }
+    
+    if (currentFile.type.startsWith('image/')) {
+        convertImage(currentFile, format, quality);
+    }
+}
+
+function convertImage(file, targetFormat, quality) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            let mimeType = 'image/png';
+            let extension = 'png';
+            
+            if (targetFormat === 'jpeg') {
+                mimeType = 'image/jpeg';
+                extension = 'jpg';
+            } else if (targetFormat === 'webp') {
+                mimeType = 'image/webp';
+                extension = 'webp';
+            }
+            
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const originalName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                link.download = `${originalName}_converted.${extension}`;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                alert(`File converted to ${targetFormat.toUpperCase()} successfully!`);
+            }, mimeType, quality);
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function resetFileAnalyzer() {
+    fileAnalyzerInput.value = '';
+    currentFile = null;
+    currentFileType = null;
+    document.getElementById('fileInfoDisplay').style.display = 'none';
+    document.getElementById('converterOptions').style.display = 'none';
+    document.getElementById('filePreviewArea').innerHTML = '';
+    qualitySlider.value = 0.9;
+    qualityValue.textContent = '90%';
+}
