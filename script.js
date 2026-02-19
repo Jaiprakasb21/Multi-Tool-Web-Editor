@@ -24,12 +24,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const collapseAllBtn = document.getElementById('collapseAll');
     const copyBtn = document.getElementById('copyBtn');
     const exportBtn = document.getElementById('exportBtn');
+    const exportOptions = document.getElementById('exportOptions');
+    const exportFilename = document.getElementById('exportFilename');
+    const exportWithNameBtn = document.getElementById('exportWithNameBtn');
+    const cancelExportBtn = document.getElementById('cancelExportBtn');
 
     formatBtn.addEventListener('click', formatJSON);
     expandAllBtn.addEventListener('click', () => toggleAll(true));
     collapseAllBtn.addEventListener('click', () => toggleAll(false));
     copyBtn.addEventListener('click', copyToClipboard);
-    exportBtn.addEventListener('click', exportJSON);
+    exportBtn.addEventListener('click', showExportOptions);
+    
+    if (exportWithNameBtn) {
+        exportWithNameBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Export with name button clicked');
+            exportJSONWithName();
+        });
+    }
+    
+    if (cancelExportBtn) {
+        cancelExportBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            hideExportOptions();
+        });
+    }
 
     // JSON Compare
     const json1Input = document.getElementById('json1Input');
@@ -387,15 +406,105 @@ function exportJSON() {
     const link = document.createElement('a');
     link.href = url;
     link.download = 'formatted-data.json';
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
     
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+    }, 100);
     
     const originalText = exportBtn.textContent;
     exportBtn.textContent = 'Exported!';
     setTimeout(() => {
         exportBtn.textContent = originalText;
     }, 2000);
+}
+
+function showExportOptions() {
+    if (!parsedData) {
+        alert('Please format JSON first before exporting');
+        return;
+    }
+    const exportOptionsEl = document.getElementById('exportOptions');
+    if (exportOptionsEl) {
+        exportOptionsEl.style.display = 'block';
+        const filenameInput = document.getElementById('exportFilename');
+        if (filenameInput) {
+            filenameInput.focus();
+        }
+    }
+}
+
+function hideExportOptions() {
+    exportOptions.style.display = 'none';
+    exportFilename.value = '';
+}
+
+function exportJSONWithName() {
+    console.log('exportJSONWithName called');
+    console.log('parsedData:', parsedData);
+    
+    if (!parsedData) {
+        alert('No JSON to export. Please format JSON first.');
+        return;
+    }
+    
+    const filenameInput = document.getElementById('exportFilename');
+    let filename = filenameInput ? filenameInput.value.trim() : '';
+    
+    console.log('Original filename:', filename);
+    
+    // If no filename provided, use default
+    if (!filename) {
+        filename = 'formatted-data';
+    }
+    
+    // Remove .json extension if user added it
+    if (filename.endsWith('.json')) {
+        filename = filename.slice(0, -5);
+    }
+    
+    // Sanitize filename - allow letters, numbers, spaces, hyphens, underscores
+    filename = filename.replace(/[^a-z0-9\s_-]/gi, '_');
+    
+    console.log('Final filename:', filename);
+    
+    try {
+        const formatted = JSON.stringify(parsedData, null, 2);
+        const blob = new Blob([formatted], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${filename}.json`;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        
+        console.log('Triggering download:', link.download);
+        link.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        
+        // Show success feedback
+        const exportBtn = document.getElementById('exportWithNameBtn');
+        if (exportBtn) {
+            const originalText = exportBtn.textContent;
+            exportBtn.textContent = 'Exported!';
+            setTimeout(() => {
+                exportBtn.textContent = originalText;
+                hideExportOptions();
+            }, 1500);
+        }
+        
+        console.log('Export completed successfully');
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Error exporting file: ' + error.message);
+    }
 }
 
 function escapeHtml(text) {

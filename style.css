@@ -1236,3 +1236,69 @@ button:hover {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Export Options Styles */
+.export-options {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.export-filename {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.export-filename label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+    white-space: nowrap;
+}
+
+.export-filename input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 15px;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.export-filename input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.export-filename button {
+    padding: 10px 20px;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .export-filename {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .export-filename input {
+        width: 100%;
+    }
+}
