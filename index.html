@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Formatter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Multi-Tool Editor</h1>
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="json">JSON Formatter</button>
+                <button class="tab-btn" data-tab="compare">JSON Compare</button>
+                <button class="tab-btn" data-tab="image">Image Editing</button>
+                <button class="tab-btn" data-tab="base64">Base64 Converter</button>
+                <button class="tab-btn" data-tab="hash">Hash Generator</button>
+            </div>
+        </div>
+        
+        <!-- JSON Formatter Section -->
+        <div id="jsonSection" class="section active">
+            <div class="input-section">
+                <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea>
+                <button id="formatBtn">Format JSON</button>
+            </div>
+            
+            <div class="output-section">
+                <div class="output-header">
+                    <span>Formatted Output</span>
+                    <div class="controls">
+                        <button id="expandAll">Expand All</button>
+                        <button id="collapseAll">Collapse All</button>
+                        <button id="copyBtn">Copy</button>
+                        <button id="exportBtn">Export JSON</button>
+                    </div>
+                </div>
+                <div id="jsonOutput"></div>
+            </div>
+        </div>
+
+        <!-- JSON Compare Section -->
+        <div id="compareSection" class="section">
+            <div class="compare-container">
+                <div class="compare-input-panel">
+                    <h3>JSON 1</h3>
+                    <textarea id="json1Input" placeholder="Paste first JSON here..."></textarea>
+                </div>
+                <div class="compare-input-panel">
+                    <h3>JSON 2</h3>
+                    <textarea id="json2Input" placeholder="Paste second JSON here..."></textarea>
+                </div>
+            </div>
+            
+            <div class="compare-actions">
+                <button id="compareBtn">Compare JSONs</button>
+                <button id="clearCompareBtn">Clear</button>
+            </div>
+            
+            <div class="compare-results" id="compareResults">
+                <div class="match-score-container">
+                    <div class="match-score" id="matchScore"></div>
+                </div>
+                <div class="differences-container">
+                    <h3>Differences</h3>
+                    <div id="differencesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Base64 Converter Section -->
+        <div id="base64Section" class="section">
+            <div class="converter-container">
+                <div class="converter-panel">
+                    <div class="panel-header">
+                        <h3>Encode to Base64</h3>
+                        <button class="reset-btn" id="resetEncodeBtn">Reset</button>
+                    </div>
+                    <div class="input-group">
+                        <label>Text Input:</label>
+                        <textarea id="textToEncode" placeholder="Enter text to encode..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Or Upload File (Image/PDF):</label>
+                        <input type="file" id="fileToEncode" accept="image/*,.pdf">
+                        <span id="encodeFileName"></span>
+                    </div>
+                    <button id="encodeBtn">Encode to Base64</button>
+                    <div class="output-group">
+                        <label>Base64 Output:</label>
+                        <textarea id="base64Output" readonly placeholder="Base64 result will appear here..."></textarea>
+                        <button id="copyBase64Btn">Copy Base64</button>
+                    </div>
+                </div>
+                
+                <div class="converter-panel">
+                    <div class="panel-header">
+                        <h3>Decode from Base64</h3>
+                        <button class="reset-btn" id="resetDecodeBtn">Reset</button>
+                    </div>
+                    <div class="input-group">
+                        <label>Base64 Input:</label>
+                        <textarea id="base64ToDecodeText" placeholder="Enter Base64 string to decode as text..."></textarea>
+                    </div>
+                    <button id="decodeTextBtn">Decode to Text</button>
+                    <div class="output-group">
+                        <label>Decoded Text:</label>
+                        <textarea id="decodedTextOutput" readonly placeholder="Decoded text will appear here..."></textarea>
+                    </div>
+                    
+                    <div class="input-group" style="margin-top: 20px;">
+                        <label>Base64 Image/PDF Input:</label>
+                        <textarea id="base64ToDecodeFile" placeholder="Enter Base64 string to decode as image/PDF..."></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button id="previewFileBtn" class="preview-btn">👁️ Preview</button>
+                        <button id="decodeFileBtn">Download File</button>
+                    </div>
+                    <div class="output-group">
+                        <label>Preview:</label>
+                        <div id="previewArea"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hash Generator Section -->
+        <div id="hashSection" class="section">
+            <div class="hash-container">
+                <div class="section-header">
+                    <h3>Hash Generator</h3>
+                    <button class="reset-btn" id="resetHashBtn">Reset All</button>
+                </div>
+                
+                <div class="hash-input-grid">
+                    <!-- Fixed Parameters Section -->
+                    <div class="hash-input-panel">
+                        <h4>Fixed Parameters Hash Generation</h4>
+                        <p class="format-info">Format: clientCode | requestId | apiKey | salt</p>
+                        <div class="params-inputs">
+                            <div class="param-input">
+                                <label>Client Code:</label>
+                                <input type="text" id="clientCode" placeholder="Enter client code">
+                            </div>
+                            <div class="param-input">
+                                <label>Request ID: <span class="auto-label">(Auto)</span></label>
+                                <input type="text" id="requestId" readonly placeholder="Auto-generated">
+                            </div>
+                            <div class="param-input">
+                                <label>API Key:</label>
+                                <input type="text" id="apiKey" placeholder="Enter API key">
+                            </div>
+                            <div class="param-input">
+                                <label>Salt:</label>
+                                <input type="text" id="salt" placeholder="Enter salt">
+                            </div>
+                        </div>
+                        <div class="param-output">
+                            <label>Hash String Preview:</label>
+                            <input type="text" id="hashStringOutput" readonly placeholder="Hash string preview...">
+                        </div>
+                        <div class="action-buttons">
+                            <button id="generateParamHashBtn">Generate Hash</button>
+                            <button id="refreshRequestIdBtn" class="secondary-btn">🔄 Refresh ID</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Text/File Input Section -->
+                    <div class="hash-input-panel">
+                        <h4>Text or File Hash Generation</h4>
+                        <div class="input-group">
+                            <label>Text Input:</label>
+                            <textarea id="textToHash" placeholder="Enter text to hash..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Or Upload File:</label>
+                            <input type="file" id="fileToHash">
+                            <span id="hashFileName"></span>
+                        </div>
+                        <div class="action-buttons">
+                            <button id="generateSHA256Btn">SHA-256</button>
+                            <button id="generateSHA512Btn">SHA-512</button>
+                            <button id="generateBothBtn">Both</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hash-output-section">
+                    <h3>Hash Results</h3>
+                    <div class="hash-result">
+                        <label>SHA-256:</label>
+                        <div class="hash-output-box">
+                            <input type="text" id="sha256Output" readonly placeholder="SHA-256 hash will appear here...">
+                            <button class="copy-hash-btn" data-target="sha256Output">Copy</button>
+                        </div>
+                    </div>
+                    <div class="hash-result">
+                        <label>SHA-512:</label>
+                        <div class="hash-output-box">
+                            <input type="text" id="sha512Output" readonly placeholder="SHA-512 hash will appear here...">
+                            <button class="copy-hash-btn" data-target="sha512Output">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Editing Section -->
+        <div id="imageSection" class="section">
+            <div class="image-upload-section">
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                <button id="uploadBtn" class="upload-btn">Upload Image</button>
+                <span id="fileName"></span>
+            </div>
+            
+            <div class="image-editor">
+                <div class="canvas-container">
+                    <canvas id="imageCanvas"></canvas>
+                </div>
+                
+                <div class="editor-controls">
+                    <div class="control-group">
+                        <h3>Transform</h3>
+                        <button id="rotateLeft">↶ Rotate Left</button>
+                        <button id="rotateRight">↷ Rotate Right</button>
+                        <button id="flipH">⇄ Flip Horizontal</button>
+                        <button id="flipV">⇅ Flip Vertical</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Filters</h3>
+                        <button id="invertBtn">Invert Colors</button>
+                        <button id="grayscaleBtn">Grayscale</button>
+                        <button id="brightenBtn">Brighten</button>
+                        <button id="darkenBtn">Darken</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Crop</h3>
+                        <button id="enableCrop">Enable Crop Mode</button>
+                        <button id="applyCrop" disabled>Apply Crop</button>
+                        <button id="cancelCrop" disabled>Cancel</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h3>Actions</h3>
+                        <button id="resetBtn">Reset</button>
+                        <button id="downloadBtn">Download Image</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
