@@ -15,23 +15,23 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/irctc/index.html",
       "has": [
         {
           "type": "host",
           "value": "www.propsanchal.com"
         }
-      ]
+      ],
+      "destination": "/irctc/index.html"
     },
     {
       "source": "/",
-      "destination": "/tools/index.html",
       "has": [
         {
           "type": "host",
           "value": "tools.propsanchal.com"
         }
-      ]
+      ],
+      "destination": "/tools/index.html"
     }
   ]
 }
