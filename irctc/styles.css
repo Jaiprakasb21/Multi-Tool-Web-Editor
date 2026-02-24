@@ -455,6 +455,83 @@ body {
     text-decoration: underline;
 }
 
+/* SEO Content Sections */
+.seo-intro {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 25px;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.seo-intro h2 {
+    font-size: 22px;
+    color: #2d3748;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.seo-intro p {
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.8;
+}
+
+.seo-content {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+
+.seo-content h2 {
+    font-size: 20px;
+    color: #2d3748;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.content-block {
+    margin-bottom: 25px;
+}
+
+.content-block:last-child {
+    margin-bottom: 0;
+}
+
+.content-block h3 {
+    font-size: 18px;
+    color: #2d3748;
+    margin-bottom: 12px;
+}
+
+.content-block p {
+    font-size: 15px;
+    color: #4a5568;
+    line-height: 1.8;
+    margin-bottom: 12px;
+}
+
+.content-block ul,
+.content-block ol {
+    margin-left: 25px;
+    color: #4a5568;
+    line-height: 1.8;
+}
+
+.content-block li {
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.content-block strong {
+    color: #667eea;
+    font-weight: 600;
+}
+
 @media (max-width: 640px) {
     body {
         padding: 10px;
@@ -462,6 +539,8 @@ body {
     
     .header {
         padding: 20px;
+        flex-direction: column;
+        text-align: center;
     }
     
     .header-content h1 {
@@ -469,7 +548,12 @@ body {
     }
     
     .subtitle {
-        font-size: 14px;
+        font-size: 13px;
+    }
+    
+    .back-link {
+        width: 100%;
+        text-align: center;
     }
     
     .main-content {
@@ -480,8 +564,49 @@ body {
         padding: 20px;
     }
     
-    .intro-section h2 {
-        font-size: 20px;
+    .seo-intro {
+        padding: 20px;
+    }
+    
+    .seo-intro h2 {
+        font-size: 18px;
+    }
+    
+    .seo-intro p {
+        font-size: 14px;
+    }
+    
+    .seo-content {
+        padding: 20px;
+    }
+    
+    .seo-content h2 {
+        font-size: 18px;
+    }
+    
+    .content-block h3 {
+        font-size: 16px;
+    }
+    
+    .content-block p,
+    .content-block li {
+        font-size: 14px;
+    }
+    
+    .faq-section {
+        padding: 20px;
+    }
+    
+    .faq-section h2 {
+        font-size: 18px;
+    }
+    
+    .faq-item h3 {
+        font-size: 15px;
+    }
+    
+    .faq-item p {
+        font-size: 14px;
     }
     
     .result-row {
@@ -501,5 +626,66 @@ body {
     .irctc-reset-btn {
         min-width: 45px;
         padding: 10px 14px;
+    }
+}
+
+/* Tablet Responsive */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .container {
+        max-width: 95%;
+    }
+    
+    .header {
+        padding: 25px;
+    }
+    
+    .header-content h1 {
+        font-size: 24px;
+    }
+    
+    .main-content {
+        padding: 30px 25px;
+    }
+    
+    .irctc-card {
+        padding: 25px;
+    }
+    
+    .seo-intro h2 {
+        font-size: 20px;
+    }
+    
+    .seo-content h2 {
+        font-size: 19px;
+    }
+    
+    .content-block h3 {
+        font-size: 17px;
+    }
+}
+
+/* Large Desktop */
+@media (min-width: 1025px) {
+    .container {
+        max-width: 1000px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .header,
+    .back-link,
+    .irctc-input-group,
+    .irctc-countdown,
+    .footer {
+        display: none;
+    }
+    
+    body {
+        background: white;
+    }
+    
+    .container {
+        box-shadow: none;
     }
 }
