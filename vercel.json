@@ -1,72 +1,97 @@
+// {
+//   "rewrites": [
+//     {
+//       "source": "/",
+//       "has": [
+//         {
+//           "type": "host",
+//           "value": "www.propsanchal.com"
+//         }
+//       ],
+//       "destination": "/irctc/index.html"
+//     },
+//     {
+//       "source": "/",
+//       "has": [
+//         {
+//           "type": "host",
+//           "value": "propsanchal.com"
+//         }
+//       ],
+//       "destination": "/irctc/index.html"
+//     },
+//     {
+//       "source": "/",
+//       "has": [
+//         {
+//           "type": "host",
+//           "value": "tools.propsanchal.com"
+//         }
+//       ],
+//       "destination": "/tools/index.html"
+//     }
+//   ],
+//   "headers": [
+//     {
+//       "source": "/irctc/(.*)",
+//       "headers": [
+//         {
+//           "key": "Cache-Control",
+//           "value": "public, max-age=3600"
+//         }
+//       ]
+//     },
+//     {
+//       "source": "/tools/(.*)",
+//       "headers": [
+//         {
+//           "key": "Cache-Control",
+//           "value": "public, max-age=3600"
+//         }
+//       ]
+//     },
+//     {
+//       "source": "/robots.txt",
+//       "headers": [
+//         {
+//           "key": "Content-Type",
+//           "value": "text/plain"
+//         }
+//       ]
+//     },
+//     {
+//       "source": "/sitemap.xml",
+//       "headers": [
+//         {
+//           "key": "Content-Type",
+//           "value": "application/xml"
+//         }
+//       ]
+//     }
+//   ]
+// }
 {
   "rewrites": [
     {
-      "source": "/",
+      "source": "/(.*)",
       "has": [
-        {
-          "type": "host",
-          "value": "www.propsanchal.com"
-        }
+        { "type": "host", "value": "www.propsanchal.com" }
       ],
-      "destination": "/irctc/index.html"
+      "destination": "/irctc/$1"
     },
     {
-      "source": "/",
+      "source": "/(.*)",
       "has": [
-        {
-          "type": "host",
-          "value": "propsanchal.com"
-        }
+        { "type": "host", "value": "propsanchal.com" }
       ],
-      "destination": "/irctc/index.html"
+      "destination": "/irctc/$1"
     },
     {
-      "source": "/",
+      "source": "/(.*)",
       "has": [
-        {
-          "type": "host",
-          "value": "tools.propsanchal.com"
-        }
+        { "type": "host", "value": "tools.propsanchal.com" }
       ],
-      "destination": "/tools/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/irctc/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
-        }
-      ]
-    },
-    {
-      "source": "/tools/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
-        }
-      ]
-    },
-    {
-      "source": "/robots.txt",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/plain"
-        }
-      ]
-    },
-    {
-      "source": "/sitemap.xml",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml"
-        }
-      ]
+      "destination": "/tools/$1"
     }
   ]
 }
