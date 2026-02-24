@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Check IRCTC train booking availability instantly. Find out if your journey date is within the 60-day advance booking window. Real-time countdown and booking status checker.">
+    <meta name="keywords" content="IRCTC, train booking, railway booking, advance booking, booking window, Indian Railways, train tickets, IRCTC checker">
+    <meta name="author" content="Multi-Tool Editor">
+    <meta property="og:title" content="IRCTC Booking Window Checker - Check Train Booking Availability">
+    <meta property="og:description" content="Instantly check if your train journey date is available for booking on IRCTC. Get real-time booking status and countdown timer.">
+    <meta property="og:type" content="website">
+    <title>IRCTC Booking Window Checker - Check Train Booking Availability Online</title>
+    <link rel="stylesheet" href="irctc-styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1>🚂 IRCTC Booking Window Checker</h1>
+                <p class="subtitle">Check if your journey date is available for booking</p>
+            </div>
+            <a href="index.html" class="back-link">← Back to All Tools</a>
+        </header>
+        
+        <main class="main-content">
+            <div class="irctc-card">
+                <div class="intro-section">
+                    <h2>Check Train Booking Availability</h2>
+                    <p>Enter your journey date to instantly check if it's within the IRCTC advance booking window. Get real-time status and countdown timer.</p>
+                </div>
+                
+                <div class="irctc-input-group">
+                    <label for="journeyDate">Select Journey Date:</label>
+                    <div class="irctc-input-row">
+                        <input type="date" id="journeyDate" class="irctc-date-input" />
+                        <button id="resetIRCTCBtn" class="irctc-reset-btn" title="Reset">🔄</button>
+                    </div>
+                    <button id="checkBookingBtn" class="irctc-check-btn">Check Booking Status</button>
+                </div>
+                
+                <div id="irctcResult" class="irctc-result"></div>
+                <div id="irctcCountdown" class="irctc-countdown"></div>
+                
+                <div class="irctc-info">
+                    <h3>ℹ️ How It Works</h3>
+                    <ul>
+                        <li>IRCTC allows advance booking up to <strong id="advanceDaysDisplay">60</strong> days</li>
+                        <li>Booking for new journey dates opens daily at <strong>8:00 AM IST</strong> (<strong id="advanceDaysDisplay2">60</strong> days in advance)</li>
+                        <li>Select any date to check its booking status</li>
+                        <li>System will show exact date when booking opens</li>
+                        <li>Countdown shows time until booking becomes available</li>
+                        <li>Click "Book Tickets Now" when available to go to IRCTC website</li>
+                    </ul>
+                </div>
+                
+                <div class="faq-section">
+                    <h3>❓ Frequently Asked Questions</h3>
+                    <div class="faq-item">
+                        <h4>What is the IRCTC advance booking period?</h4>
+                        <p>IRCTC allows passengers to book train tickets up to 60 days in advance (excluding the date of journey).</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>When does the booking window open?</h4>
+                        <p>The booking window for new dates opens daily at 8:00 AM IST. For example, on January 1st at 8 AM, tickets for March 2nd become available.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Can I book tickets for dates beyond 60 days?</h4>
+                        <p>No, IRCTC does not allow booking beyond 60 days in advance. You need to wait until the date falls within the booking window.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>What time zone is used for booking?</h4>
+                        <p>All IRCTC bookings follow Indian Standard Time (IST). The booking window opens at 8:00 AM IST regardless of your location.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <p>&copy; 2024 Multi-Tool Editor. This is an unofficial tool to check IRCTC booking availability.</p>
+            <p>For official bookings, visit <a href="https://www.irctc.co.in" target="_blank" rel="noopener">www.irctc.co.in</a></p>
+        </footer>
+    </div>
+    
+    <script src="irctc-script.js"></script>
+</body>
+</html>
