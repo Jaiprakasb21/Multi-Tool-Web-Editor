@@ -1,15 +1,5 @@
 {
-  "rewrites": [
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.propsanchal.com"
-        }
-      ],
-      "destination": "/irctc/index.html"
-    },
+  "redirects": [
     {
       "source": "/",
       "has": [
@@ -18,17 +8,30 @@
           "value": "propsanchal.com"
         }
       ],
-      "destination": "/irctc/index.html"
+      "destination": "https://www.propsanchal.com/",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/irctc/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.propsanchal.com"
+        }
+      ]
     },
     {
       "source": "/",
+      "destination": "/tools/index.html",
       "has": [
         {
           "type": "host",
           "value": "tools.propsanchal.com"
         }
-      ],
-      "destination": "/tools/index.html"
+      ]
     }
   ]
 }
