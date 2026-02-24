@@ -12,6 +12,30 @@
         <priority>1.0</priority>
     </url>
     
+    <!-- Privacy Policy -->
+    <url>
+        <loc>https://www.propsanchal.com/privacy-policy</loc>
+        <lastmod>2026-02-24</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- About Us -->
+    <url>
+        <loc>https://www.propsanchal.com/about</loc>
+        <lastmod>2026-02-24</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- Contact -->
+    <url>
+        <loc>https://www.propsanchal.com/contact</loc>
+        <lastmod>2026-02-24</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
     <!-- Tools Subdomain -->
     <url>
         <loc>https://tools.propsanchal.com/</loc>

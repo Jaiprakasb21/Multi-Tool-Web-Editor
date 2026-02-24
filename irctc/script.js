@@ -80,6 +80,29 @@ function initIRCTCTool() {
         resetBtn.addEventListener('click', resetIRCTCFields);
     }
     
+    // Add event listener to date input to reset on change
+    const journeyInput = document.getElementById('journeyDate');
+    if (journeyInput) {
+        journeyInput.addEventListener('change', function() {
+            // Clear previous results and reset button when date changes
+            const resultDiv = document.getElementById('irctcResult');
+            const countdownDiv = document.getElementById('irctcCountdown');
+            const checkBtn = document.getElementById('checkBookingBtn');
+            
+            if (resultDiv) resultDiv.innerHTML = '';
+            if (countdownDiv) countdownDiv.innerHTML = '';
+            
+            // Reset button to default state
+            if (checkBtn) {
+                checkBtn.textContent = 'Check Booking Status';
+                checkBtn.className = 'irctc-check-btn';
+                checkBtn.dataset.bookingOpen = 'false';
+            }
+            
+            clearInterval(irctcCountdownInterval);
+        });
+    }
+    
     // Display advance days
     const advanceDaysEl = document.getElementById('advanceDaysDisplay');
     if (advanceDaysEl) {
@@ -255,13 +278,11 @@ function checkIRCTCBooking() {
     
     resultDiv.innerHTML = statusHTML;
     
-    // Show countdown for when booking will open (if not yet open)
+    // Show countdown only when booking is NOT open
     if (!isOpen && journeyDate >= today && bookingOpenDate) {
         startIRCTCCountdown(bookingOpenDate);
-    } else if (isOpen && journeyDate >= today) {
-        // Show countdown to next window shift
-        startIRCTCCountdown(getNextBookingOpenTime());
     } else {
+        // Clear countdown when booking is open or date is in the past
         clearInterval(irctcCountdownInterval);
         document.getElementById("irctcCountdown").innerHTML = '';
     }
@@ -335,4 +356,37 @@ function scheduleIRCTCMidnightRefresh() {
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
     initIRCTCTool();
+    initDropdowns();
 });
+
+// ================= DROPDOWN FUNCTIONALITY ================= 
+function initDropdowns() {
+    const dropdownSections = document.querySelectorAll('.dropdown-section');
+    
+    dropdownSections.forEach(section => {
+        const header = section.querySelector('.dropdown-header');
+        
+        if (header) {
+            // Click to toggle
+            header.addEventListener('click', function() {
+                toggleDropdown(section);
+            });
+            
+            // Hover to expand
+            section.addEventListener('mouseenter', function() {
+                if (!section.classList.contains('active')) {
+                    section.classList.add('active');
+                }
+            });
+            
+            // Optional: Auto-collapse on mouse leave (comment out if you want it to stay open)
+            // section.addEventListener('mouseleave', function() {
+            //     section.classList.remove('active');
+            // });
+        }
+    });
+}
+
+function toggleDropdown(section) {
+    section.classList.toggle('active');
+}

@@ -671,6 +671,152 @@ body {
     }
 }
 
+/* Dropdown Styles */
+.dropdown-section {
+    background: white;
+    padding: 0;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.dropdown-section:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    cursor: pointer;
+    background: white;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.dropdown-header:hover {
+    background: #f7fafc;
+}
+
+.dropdown-header h2,
+.dropdown-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2d3748;
+    flex: 1;
+}
+
+.dropdown-header h2 {
+    font-size: 20px;
+}
+
+.dropdown-icon {
+    font-size: 16px;
+    color: #667eea;
+    transition: transform 0.3s ease;
+    margin-left: 15px;
+}
+
+.dropdown-section.active .dropdown-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+    padding: 0 25px;
+}
+
+.dropdown-section.active .dropdown-content {
+    max-height: 3000px;
+    padding: 0 25px 25px 25px;
+}
+
+/* Adjust existing styles for dropdown sections */
+.dropdown-section.seo-content .dropdown-content,
+.dropdown-section.faq-section .dropdown-content,
+.dropdown-section.irctc-info .dropdown-content {
+    background: white;
+}
+
+.dropdown-section.irctc-info .dropdown-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-section.irctc-info .dropdown-content li {
+    padding: 8px 0;
+    color: #4a5568;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.dropdown-section.irctc-info .dropdown-content li:before {
+    content: "✓ ";
+    color: #48bb78;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.dropdown-section.faq-section .faq-item {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.dropdown-section.faq-section .faq-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.dropdown-section.faq-section .faq-item h3 {
+    font-size: 16px;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.dropdown-section.faq-section .faq-item p {
+    font-size: 14px;
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+/* Mobile Responsive for Dropdowns */
+@media (max-width: 640px) {
+    .dropdown-header {
+        padding: 15px 20px;
+    }
+    
+    .dropdown-header h2,
+    .dropdown-header h3 {
+        font-size: 16px;
+    }
+    
+    .dropdown-header h2 {
+        font-size: 17px;
+    }
+    
+    .dropdown-icon {
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    
+    .dropdown-content {
+        padding: 0 20px;
+    }
+    
+    .dropdown-section.active .dropdown-content {
+        padding: 0 20px 20px 20px;
+    }
+}
+
 /* Print Styles */
 @media print {
     .header,
@@ -687,5 +833,14 @@ body {
     
     .container {
         box-shadow: none;
+    }
+    
+    .dropdown-section .dropdown-content {
+        max-height: none !important;
+        padding: 20px !important;
+    }
+    
+    .dropdown-icon {
+        display: none;
     }
 }
