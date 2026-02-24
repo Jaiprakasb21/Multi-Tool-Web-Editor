@@ -29,10 +29,26 @@
         }
       ],
       "destination": "/tools/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/irctc/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
     },
     {
-      "source": "/(.*)",
-      "destination": "/tools/$1"
+      "source": "/tools/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
     }
   ]
 }

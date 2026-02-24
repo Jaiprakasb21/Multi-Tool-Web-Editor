@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Testing - Choose Your Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        a {
+            display: block;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        a:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .note {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fff5f5;
+            border: 2px solid #feb2b2;
+            border-radius: 8px;
+            color: #742a2a;
+            font-size: 14px;
+        }
+        .note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Local Testing</h1>
+        <p>Choose which page to view:</p>
+        
+        <div class="links">
+            <a href="irctc/index.html">🚂 IRCTC Booking Checker</a>
+            <a href="tools/index.html">🛠️ Multi-Tool Editor</a>
+        </div>
+        
+        <div class="note">
+            <strong>⚠️ Important for Local Testing:</strong>
+            If CSS doesn't load, you need to use a local server. Run one of these commands in your terminal:
+            <br><br>
+            <code>python -m http.server 8000</code>
+            <br>or<br>
+            <code>npx serve</code>
+            <br><br>
+            Then visit: <code>http://localhost:8000/test-local.html</code>
+        </div>
+    </div>
+</body>
+</html>
