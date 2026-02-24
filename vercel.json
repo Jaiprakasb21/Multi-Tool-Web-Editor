@@ -1,34 +1,34 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/",
       "has": [
         {
           "type": "host",
           "value": "www.propsanchal.com"
         }
       ],
-      "destination": "/irctc/$1"
+      "destination": "/irctc/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/",
       "has": [
         {
           "type": "host",
           "value": "propsanchal.com"
         }
       ],
-      "destination": "/irctc/$1"
+      "destination": "/irctc/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/",
       "has": [
         {
           "type": "host",
           "value": "tools.propsanchal.com"
         }
       ],
-      "destination": "/tools/$1"
+      "destination": "/tools/index.html"
     }
   ]
 }
