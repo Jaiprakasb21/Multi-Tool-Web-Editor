@@ -13,11 +13,13 @@
             <div class="tab-buttons">
                 <button class="tab-btn active" data-tab="json">JSON Formatter</button>
                 <button class="tab-btn" data-tab="compare">JSON Compare</button>
+                <button class="tab-btn" data-tab="textCompare">Text Compare</button>
                 <button class="tab-btn" data-tab="image">Image Editing</button>
                 <button class="tab-btn" data-tab="base64">Base64 Converter</button>
                 <button class="tab-btn" data-tab="hash">Hash Generator</button>
                 <button class="tab-btn" data-tab="text">Text Summary</button>
                 <button class="tab-btn" data-tab="fileAnalyzer">File Analyzer</button>
+                <button class="tab-btn" data-tab="irctc">IRCTC Checker</button>
             </div>
         </div>
         
@@ -356,6 +358,105 @@
                                 <button class="convert-btn" data-format="pdf-to-jpeg">PDF to JPEG</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Compare Section -->
+        <div id="textCompareSection" class="section">
+            <div class="text-compare-container">
+                <div class="compare-header">
+                    <h3>Text Comparison Tool</h3>
+                    <div class="compare-actions">
+                        <button id="compareTextBtn">Compare Texts</button>
+                        <button id="clearTextCompareBtn" class="secondary-btn">Clear All</button>
+                    </div>
+                </div>
+                
+                <div class="text-compare-inputs">
+                    <div class="text-compare-panel">
+                        <h4>Text 1</h4>
+                        <textarea id="text1Input" placeholder="Enter or paste first text here..."></textarea>
+                        <div class="text-stats">
+                            <span>Characters: <strong id="text1Chars">0</strong></span>
+                            <span>Words: <strong id="text1Words">0</strong></span>
+                            <span>Lines: <strong id="text1Lines">0</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-compare-panel">
+                        <h4>Text 2</h4>
+                        <textarea id="text2Input" placeholder="Enter or paste second text here..."></textarea>
+                        <div class="text-stats">
+                            <span>Characters: <strong id="text2Chars">0</strong></span>
+                            <span>Words: <strong id="text2Words">0</strong></span>
+                            <span>Lines: <strong id="text2Lines">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-compare-results" id="textCompareResults">
+                    <div class="comparison-summary">
+                        <div class="summary-card">
+                            <div class="summary-value" id="similarityScore">0%</div>
+                            <div class="summary-label">Similarity</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="addedCount">0</div>
+                            <div class="summary-label">Added Lines</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="removedCount">0</div>
+                            <div class="summary-label">Removed Lines</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="unchangedCount">0</div>
+                            <div class="summary-label">Unchanged Lines</div>
+                        </div>
+                    </div>
+                    
+                    <div class="diff-view">
+                        <h4>Differences</h4>
+                        <div class="diff-legend">
+                            <span class="legend-item"><span class="legend-color removed"></span> Removed from Text 1</span>
+                            <span class="legend-item"><span class="legend-color added"></span> Added in Text 2</span>
+                            <span class="legend-item"><span class="legend-color unchanged"></span> Unchanged</span>
+                        </div>
+                        <div id="diffOutput"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IRCTC Booking Window Checker Section -->
+        <div id="irctcSection" class="section">
+            <div class="irctc-container">
+                <div class="irctc-card">
+                    <h2>🚂 IRCTC Booking Window Checker</h2>
+                    <p class="irctc-description">Check if your journey date is within the IRCTC advance booking window</p>
+                    
+                    <div class="irctc-input-group">
+                        <label for="journeyDate">Select Journey Date:</label>
+                        <div class="irctc-input-row">
+                            <input type="date" id="journeyDate" class="irctc-date-input" />
+                            <button id="resetIRCTCBtn" class="irctc-reset-btn" title="Reset">🔄</button>
+                        </div>
+                        <button id="checkBookingBtn" class="irctc-check-btn">Check Booking Status</button>
+                    </div>
+                    
+                    <div id="irctcResult" class="irctc-result"></div>
+                    <div id="irctcCountdown" class="irctc-countdown"></div>
+                    
+                    <div class="irctc-info">
+                        <h4>ℹ️ Information</h4>
+                        <ul>
+                            <li>IRCTC allows advance booking up to <strong id="advanceDaysDisplay">60</strong> days</li>
+                            <li>Booking for new journey dates opens daily at <strong>8:00 AM IST</strong> (<strong id="advanceDaysDisplay2">60</strong> days in advance)</li>
+                            <li>Select any date to check its booking status</li>
+                            <li>System will show exact date when booking opens</li>
+                            <li>Countdown shows time until booking becomes available</li>
+                        </ul>
                     </div>
                 </div>
             </div>

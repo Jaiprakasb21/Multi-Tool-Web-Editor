@@ -77,6 +77,31 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => autoFormatInput(json2Input), 10);
     });
 
+    // Text Compare
+    const text1Input = document.getElementById('text1Input');
+    const text2Input = document.getElementById('text2Input');
+    const compareTextBtn = document.getElementById('compareTextBtn');
+    const clearTextCompareBtn = document.getElementById('clearTextCompareBtn');
+    
+    if (compareTextBtn) {
+        compareTextBtn.addEventListener('click', function() {
+            console.log('Compare button clicked');
+            compareTexts();
+        });
+    }
+    
+    if (clearTextCompareBtn) {
+        clearTextCompareBtn.addEventListener('click', clearTextCompare);
+    }
+    
+    // Real-time stats update
+    if (text1Input) {
+        text1Input.addEventListener('input', () => updateTextStats(text1Input, 'text1'));
+    }
+    if (text2Input) {
+        text2Input.addEventListener('input', () => updateTextStats(text2Input, 'text2'));
+    }
+
     // Base64 Converter
     const textToEncode = document.getElementById('textToEncode');
     const fileToEncode = document.getElementById('fileToEncode');
@@ -1696,7 +1721,7 @@ async function convertFile(format) {
         return;
     }
     
-    const quality = parseFloat(qualitySlider.value);
+    const quality = parseFloat(document.getElementById('qualitySlider').value);
     
     if (format === 'pdf-to-png' || format === 'pdf-to-jpeg') {
         alert('PDF to image conversion requires a PDF rendering library. This is a browser limitation. Please use online tools or desktop software for PDF conversion.');
@@ -1704,8 +1729,22 @@ async function convertFile(format) {
     }
     
     if (currentFile.type.startsWith('image/')) {
+        // Check WebP support
+        if (format === 'webp' && !isWebPSupported()) {
+            alert('WebP format is not supported in your browser. Please try PNG or JPEG format.');
+            return;
+        }
         convertImage(currentFile, format, quality);
     }
+}
+
+function isWebPSupported() {
+    const canvas = document.createElement('canvas');
+    if (canvas.getContext && canvas.getContext('2d')) {
+        // Check if toDataURL supports webp
+        return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    }
+    return false;
 }
 
 function convertImage(file, targetFormat, quality) {
@@ -1713,38 +1752,94 @@ function convertImage(file, targetFormat, quality) {
     reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            
-            let mimeType = 'image/png';
-            let extension = 'png';
-            
-            if (targetFormat === 'jpeg') {
-                mimeType = 'image/jpeg';
-                extension = 'jpg';
-            } else if (targetFormat === 'webp') {
-                mimeType = 'image/webp';
-                extension = 'webp';
-            }
-            
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                const originalName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-                link.download = `${originalName}_converted.${extension}`;
-                link.href = url;
-                link.click();
-                URL.revokeObjectURL(url);
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
                 
-                alert(`File converted to ${targetFormat.toUpperCase()} successfully!`);
-            }, mimeType, quality);
+                if (!ctx) {
+                    alert('Canvas not supported in your browser');
+                    return;
+                }
+                
+                ctx.drawImage(img, 0, 0);
+                
+                let mimeType = 'image/png';
+                let extension = 'png';
+                
+                if (targetFormat === 'jpeg') {
+                    mimeType = 'image/jpeg';
+                    extension = 'jpg';
+                } else if (targetFormat === 'webp') {
+                    mimeType = 'image/webp';
+                    extension = 'webp';
+                }
+                
+                // Check if toBlob is supported
+                if (!canvas.toBlob) {
+                    // Fallback for older browsers
+                    const dataUrl = canvas.toDataURL(mimeType, quality);
+                    downloadFromDataUrl(dataUrl, file.name, extension, targetFormat);
+                    return;
+                }
+                
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        alert('Failed to convert image. Your browser may not support this format.');
+                        return;
+                    }
+                    
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const originalName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                    link.download = `${originalName}_converted.${extension}`;
+                    link.href = url;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }, 100);
+                    
+                    alert(`File converted to ${targetFormat.toUpperCase()} successfully!`);
+                }, mimeType, quality);
+            } catch (error) {
+                console.error('Conversion error:', error);
+                alert('Error converting image: ' + error.message);
+            }
         };
+        
+        img.onerror = () => {
+            alert('Failed to load image. Please try a different file.');
+        };
+        
         img.src = e.target.result;
     };
+    
+    reader.onerror = () => {
+        alert('Failed to read file. Please try again.');
+    };
+    
     reader.readAsDataURL(file);
+}
+
+function downloadFromDataUrl(dataUrl, originalName, extension, format) {
+    const link = document.createElement('a');
+    const name = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
+    link.download = `${name}_converted.${extension}`;
+    link.href = dataUrl;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    
+    setTimeout(() => {
+        document.body.removeChild(link);
+    }, 100);
+    
+    alert(`File converted to ${format.toUpperCase()} successfully!`);
 }
 
 function resetFileAnalyzer() {
@@ -1757,3 +1852,550 @@ function resetFileAnalyzer() {
     qualitySlider.value = 0.9;
     qualityValue.textContent = '90%';
 }
+
+
+// Text Compare Functions
+function updateTextStats(textarea, prefix) {
+    const text = textarea.value;
+    const chars = text.length;
+    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    const lines = text.split('\n').length;
+    
+    const charsEl = document.getElementById(`${prefix}Chars`);
+    const wordsEl = document.getElementById(`${prefix}Words`);
+    const linesEl = document.getElementById(`${prefix}Lines`);
+    
+    if (charsEl) charsEl.textContent = chars;
+    if (wordsEl) wordsEl.textContent = words;
+    if (linesEl) linesEl.textContent = lines;
+}
+
+function compareTexts() {
+    console.log('compareTexts function called');
+    
+    const text1Input = document.getElementById('text1Input');
+    const text2Input = document.getElementById('text2Input');
+    
+    if (!text1Input || !text2Input) {
+        console.error('Text input elements not found');
+        alert('Error: Text input fields not found');
+        return;
+    }
+    
+    const text1 = text1Input.value;
+    const text2 = text2Input.value;
+    
+    console.log('Text 1 length:', text1.length);
+    console.log('Text 2 length:', text2.length);
+    
+    if (!text1 && !text2) {
+        alert('Please enter text in both fields');
+        return;
+    }
+    
+    const lines1 = text1.split('\n');
+    const lines2 = text2.split('\n');
+    
+    console.log('Lines 1:', lines1.length);
+    console.log('Lines 2:', lines2.length);
+    
+    const diff = computeDiff(lines1, lines2);
+    console.log('Diff computed:', diff.length, 'items');
+    
+    displayDiff(diff);
+    displaySummary(diff);
+}
+
+function computeDiff(lines1, lines2) {
+    const diff = [];
+    let i = 0, j = 0;
+    
+    while (i < lines1.length || j < lines2.length) {
+        if (i >= lines1.length) {
+            // Remaining lines in text2 are additions
+            diff.push({ type: 'added', line: lines2[j], lineNum2: j + 1 });
+            j++;
+        } else if (j >= lines2.length) {
+            // Remaining lines in text1 are deletions
+            diff.push({ type: 'removed', line: lines1[i], lineNum1: i + 1 });
+            i++;
+        } else if (lines1[i] === lines2[j]) {
+            // Lines are the same
+            diff.push({ type: 'unchanged', line: lines1[i], lineNum1: i + 1, lineNum2: j + 1 });
+            i++;
+            j++;
+        } else {
+            // Lines are different - check if it's a modification or add/remove
+            const foundInText2 = lines2.indexOf(lines1[i], j);
+            const foundInText1 = lines1.indexOf(lines2[j], i);
+            
+            if (foundInText2 !== -1 && (foundInText1 === -1 || foundInText2 - j < foundInText1 - i)) {
+                // Line from text1 found later in text2, so lines in between are additions
+                diff.push({ type: 'added', line: lines2[j], lineNum2: j + 1 });
+                j++;
+            } else if (foundInText1 !== -1) {
+                // Line from text2 found later in text1, so lines in between are deletions
+                diff.push({ type: 'removed', line: lines1[i], lineNum1: i + 1 });
+                i++;
+            } else {
+                // Lines are modified
+                diff.push({ type: 'removed', line: lines1[i], lineNum1: i + 1 });
+                diff.push({ type: 'added', line: lines2[j], lineNum2: j + 1 });
+                i++;
+                j++;
+            }
+        }
+    }
+    
+    return diff;
+}
+
+function displayDiff(diff) {
+    const diffOutput = document.getElementById('diffOutput');
+    
+    if (!diffOutput) {
+        console.error('diffOutput element not found');
+        return;
+    }
+    
+    if (diff.length === 0) {
+        diffOutput.innerHTML = '<div class="no-differences">Texts are identical</div>';
+        return;
+    }
+    
+    // Local escape function to avoid dependency issues
+    const escape = (text) => {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    };
+    
+    let html = '<div class="diff-lines">';
+    
+    diff.forEach(item => {
+        const lineNum = item.lineNum1 || item.lineNum2 || '';
+        const escapedLine = escape(item.line || '(empty line)');
+        
+        if (item.type === 'removed') {
+            html += `<div class="diff-line removed">
+                <span class="line-number">${item.lineNum1}</span>
+                <span class="line-marker">-</span>
+                <span class="line-content">${escapedLine}</span>
+            </div>`;
+        } else if (item.type === 'added') {
+            html += `<div class="diff-line added">
+                <span class="line-number">${item.lineNum2}</span>
+                <span class="line-marker">+</span>
+                <span class="line-content">${escapedLine}</span>
+            </div>`;
+        } else {
+            html += `<div class="diff-line unchanged">
+                <span class="line-number">${item.lineNum1}</span>
+                <span class="line-marker">&nbsp;</span>
+                <span class="line-content">${escapedLine}</span>
+            </div>`;
+        }
+    });
+    
+    html += '</div>';
+    diffOutput.innerHTML = html;
+    console.log('Diff displayed successfully');
+}
+
+function displaySummary(diff) {
+    const added = diff.filter(d => d.type === 'added').length;
+    const removed = diff.filter(d => d.type === 'removed').length;
+    const unchanged = diff.filter(d => d.type === 'unchanged').length;
+    const total = diff.length;
+    
+    const similarity = total > 0 ? Math.round((unchanged / total) * 100) : 0;
+    
+    const similarityEl = document.getElementById('similarityScore');
+    const addedEl = document.getElementById('addedCount');
+    const removedEl = document.getElementById('removedCount');
+    const unchangedEl = document.getElementById('unchangedCount');
+    
+    if (similarityEl) {
+        similarityEl.textContent = similarity + '%';
+        
+        // Color code similarity
+        if (similarity >= 80) {
+            similarityEl.style.color = '#48bb78';
+        } else if (similarity >= 50) {
+            similarityEl.style.color = '#ed8936';
+        } else {
+            similarityEl.style.color = '#e53e3e';
+        }
+    }
+    
+    if (addedEl) addedEl.textContent = added;
+    if (removedEl) removedEl.textContent = removed;
+    if (unchangedEl) unchangedEl.textContent = unchanged;
+    
+    console.log('Summary displayed - Similarity:', similarity + '%');
+}
+
+function clearTextCompare() {
+    const text1Input = document.getElementById('text1Input');
+    const text2Input = document.getElementById('text2Input');
+    
+    if (text1Input) text1Input.value = '';
+    if (text2Input) text2Input.value = '';
+    
+    const elements = [
+        'text1Chars', 'text1Words', 'text1Lines',
+        'text2Chars', 'text2Words', 'text2Lines',
+        'similarityScore', 'addedCount', 'removedCount', 'unchangedCount'
+    ];
+    
+    elements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = id === 'similarityScore' ? '0%' : '0';
+    });
+    
+    const diffOutput = document.getElementById('diffOutput');
+    if (diffOutput) diffOutput.innerHTML = '';
+}
+
+
+// ================= IRCTC BOOKING WINDOW CHECKER ================= 
+const IRCTC_CONFIG = {
+    ADVANCE_DAYS: 60, // Change to 120 anytime
+    TIMEZONE: "Asia/Kolkata",
+    BOOKING_HOUR: 8, // Booking opens at 8 AM IST
+    BOOKING_MINUTE: 0
+};
+
+let irctcCountdownInterval;
+
+// Time Utilities
+function getISTDateTime() {
+    const now = new Date();
+    return new Date(
+        now.toLocaleString("en-US", { timeZone: IRCTC_CONFIG.TIMEZONE })
+    );
+}
+
+function getTodayIST() {
+    const ist = getISTDateTime();
+    return new Date(ist.getFullYear(), ist.getMonth(), ist.getDate());
+}
+
+function getLastBookingDate() {
+    const today = getTodayIST();
+    const now = getISTDateTime();
+    const last = new Date(today);
+    last.setDate(today.getDate() + IRCTC_CONFIG.ADVANCE_DAYS);
+    
+    // Set to 8 AM IST
+    last.setHours(IRCTC_CONFIG.BOOKING_HOUR, IRCTC_CONFIG.BOOKING_MINUTE, 0, 0);
+    
+    // If current time is before 8 AM today, the last booking date is actually yesterday + 60 days
+    const todayAt8AM = new Date(today);
+    todayAt8AM.setHours(IRCTC_CONFIG.BOOKING_HOUR, IRCTC_CONFIG.BOOKING_MINUTE, 0, 0);
+    
+    if (now < todayAt8AM) {
+        last.setDate(last.getDate() - 1);
+    }
+    
+    return last;
+}
+
+function getNextBookingOpenTime() {
+    const now = getISTDateTime();
+    const today = getTodayIST();
+    const todayAt8AM = new Date(today);
+    todayAt8AM.setHours(IRCTC_CONFIG.BOOKING_HOUR, IRCTC_CONFIG.BOOKING_MINUTE, 0, 0);
+    
+    if (now >= todayAt8AM) {
+        // Next opening is tomorrow at 8 AM
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        tomorrow.setHours(IRCTC_CONFIG.BOOKING_HOUR, IRCTC_CONFIG.BOOKING_MINUTE, 0, 0);
+        return tomorrow;
+    } else {
+        // Next opening is today at 8 AM
+        return todayAt8AM;
+    }
+}
+
+function formatDateIRCTC(date) {
+    return date.toISOString().split("T")[0];
+}
+
+function diffInDays(date1, date2) {
+    const diff = date1 - date2;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+// Initialize IRCTC Tool
+function initIRCTCTool() {
+    const checkBtn = document.getElementById('checkBookingBtn');
+    if (checkBtn) {
+        checkBtn.addEventListener('click', handleIRCTCButtonClick);
+    }
+    
+    const resetBtn = document.getElementById('resetIRCTCBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetIRCTCFields);
+    }
+    
+    // Display advance days
+    const advanceDaysEl = document.getElementById('advanceDaysDisplay');
+    if (advanceDaysEl) {
+        advanceDaysEl.textContent = IRCTC_CONFIG.ADVANCE_DAYS;
+    }
+    
+    const advanceDaysEl2 = document.getElementById('advanceDaysDisplay2');
+    if (advanceDaysEl2) {
+        advanceDaysEl2.textContent = IRCTC_CONFIG.ADVANCE_DAYS;
+    }
+    
+    applyIRCTCDateLimit();
+    scheduleIRCTCMidnightRefresh();
+}
+
+// Reset IRCTC fields
+function resetIRCTCFields() {
+    const journeyInput = document.getElementById('journeyDate');
+    const resultDiv = document.getElementById('irctcResult');
+    const countdownDiv = document.getElementById('irctcCountdown');
+    const checkBtn = document.getElementById('checkBookingBtn');
+    
+    if (journeyInput) journeyInput.value = '';
+    if (resultDiv) resultDiv.innerHTML = '';
+    if (countdownDiv) countdownDiv.innerHTML = '';
+    
+    // Reset button to default state
+    if (checkBtn) {
+        checkBtn.textContent = 'Check Booking Status';
+        checkBtn.className = 'irctc-check-btn';
+        checkBtn.dataset.bookingOpen = 'false';
+    }
+    
+    clearInterval(irctcCountdownInterval);
+}
+
+// Handle button click - either check status or book ticket
+function handleIRCTCButtonClick() {
+    const checkBtn = document.getElementById('checkBookingBtn');
+    const isBookingOpen = checkBtn.dataset.bookingOpen === 'true';
+    
+    if (isBookingOpen) {
+        // Open IRCTC booking page
+        window.open('https://www.irctc.co.in/nget/train-search', '_blank');
+    } else {
+        // Check booking status
+        checkIRCTCBooking();
+    }
+}
+
+// Disable future dates beyond booking window
+function applyIRCTCDateLimit() {
+    const input = document.getElementById("journeyDate");
+    if (!input) return;
+    
+    // Remove all restrictions - allow any date selection
+    // Users can select any date and the system will tell them the booking status
+    input.removeAttribute('min');
+    input.removeAttribute('max');
+}
+
+// Main check function
+function checkIRCTCBooking() {
+    const inputVal = document.getElementById("journeyDate").value;
+    const resultDiv = document.getElementById("irctcResult");
+    
+    if (!inputVal) {
+        alert("Please select a journey date");
+        return;
+    }
+    
+    const journeyDate = new Date(inputVal + 'T00:00:00');
+    const today = getTodayIST();
+    const now = getISTDateTime();
+    
+    // Step 2: Calculate last booking date = today + 60 days at 8 AM
+    const lastBookingDate = new Date(today);
+    lastBookingDate.setDate(today.getDate() + IRCTC_CONFIG.ADVANCE_DAYS);
+    lastBookingDate.setHours(IRCTC_CONFIG.BOOKING_HOUR, IRCTC_CONFIG.BOOKING_MINUTE, 0, 0);
+    
+    // Adjust if current time is before 8 AM
+    const todayAt8AM = new Date(today);
+    todayAt8AM.setHours(IRCTC_CONFIG.BOOKING_HOUR, IRCTC_CONFIG.BOOKING_MINUTE, 0, 0);
+    if (now < todayAt8AM) {
+        lastBookingDate.setDate(lastBookingDate.getDate() - 1);
+    }
+    
+    // Step 3: Compare journey date with last booking date
+    const isOpen = journeyDate <= lastBookingDate;
+    const daysFromToday = diffInDays(journeyDate, today);
+    
+    let statusHTML = '';
+    let statusClass = '';
+    let message = '';
+    let bookingOpenDate = null;
+    let showBookButton = false;
+    const checkBtn = document.getElementById('checkBookingBtn');
+    
+    if (journeyDate < today) {
+        // Past date
+        statusClass = 'status-past';
+        message = '⚠️ This date has already passed';
+        // Reset button to default
+        if (checkBtn) {
+            checkBtn.textContent = 'Check Booking Status';
+            checkBtn.className = 'irctc-check-btn';
+            checkBtn.dataset.bookingOpen = 'false';
+        }
+    } else if (isOpen) {
+        // Step 4: TRUE - Booking is OPEN
+        statusClass = 'status-open';
+        message = `✅ OPEN FOR BOOKING<br><small>Journey is ${daysFromToday} days from today</small>`;
+        showBookButton = true;
+        // Change button to Book Tickets
+        if (checkBtn) {
+            checkBtn.textContent = '🎫 Book Tickets Now';
+            checkBtn.className = 'irctc-check-btn book-mode';
+            checkBtn.dataset.bookingOpen = 'true';
+        }
+    } else {
+        // Step 4: FALSE - Booking NOT OPEN
+        // Calculate exact opening date: journeyDate - 60 days at 8 AM
+        bookingOpenDate = new Date(journeyDate);
+        bookingOpenDate.setDate(journeyDate.getDate() - IRCTC_CONFIG.ADVANCE_DAYS);
+        bookingOpenDate.setHours(IRCTC_CONFIG.BOOKING_HOUR, IRCTC_CONFIG.BOOKING_MINUTE, 0, 0);
+        
+        const daysUntilOpen = Math.ceil((bookingOpenDate - now) / (1000 * 60 * 60 * 24));
+        const hoursUntilOpen = Math.ceil((bookingOpenDate - now) / (1000 * 60 * 60));
+        
+        statusClass = 'status-closed';
+        message = `🔴 NOT OPEN<br>
+            <div class="booking-opens-info">
+                📅 Booking will open on:<br>
+                <strong>${bookingOpenDate.toDateString()}</strong> at <strong>${IRCTC_CONFIG.BOOKING_HOUR}:00 AM IST</strong><br>
+                <small>(${daysUntilOpen} days / ${hoursUntilOpen} hours from now)</small>
+            </div>`;
+        // Reset button to default
+        if (checkBtn) {
+            checkBtn.textContent = 'Check Booking Status';
+            checkBtn.className = 'irctc-check-btn';
+            checkBtn.dataset.bookingOpen = 'false';
+        }
+    }
+    
+    statusHTML = `
+        <div class="result-card ${statusClass}">
+            <div class="result-row">
+                <span class="result-label">Current Time (IST):</span>
+                <span class="result-value">${now.toLocaleString('en-IN', { 
+                    timeZone: IRCTC_CONFIG.TIMEZONE,
+                    dateStyle: 'medium',
+                    timeStyle: 'short'
+                })}</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Journey Date:</span>
+                <span class="result-value">${journeyDate.toDateString()}</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Last Bookable Date:</span>
+                <span class="result-value">${lastBookingDate.toDateString()} at ${IRCTC_CONFIG.BOOKING_HOUR}:00 AM</span>
+            </div>
+            <div class="result-status">
+                ${message}
+            </div>
+            ${showBookButton ? `
+                <div class="book-ticket-section">
+                    <p class="book-note">✨ Click the "Book Tickets Now" button above to proceed to IRCTC website</p>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    resultDiv.innerHTML = statusHTML;
+    
+    // Show countdown for when booking will open (if not yet open)
+    if (!isOpen && journeyDate >= today && bookingOpenDate) {
+        startIRCTCCountdown(bookingOpenDate);
+    } else if (isOpen && journeyDate >= today) {
+        // Show countdown to next window shift
+        startIRCTCCountdown(getNextBookingOpenTime());
+    } else {
+        clearInterval(irctcCountdownInterval);
+        document.getElementById("irctcCountdown").innerHTML = '';
+    }
+}
+
+
+
+// Countdown timer
+function startIRCTCCountdown(targetDate) {
+    clearInterval(irctcCountdownInterval);
+    
+    const countdownDiv = document.getElementById("irctcCountdown");
+    
+    irctcCountdownInterval = setInterval(() => {
+        const now = getISTDateTime();
+        const diff = targetDate - now;
+        
+        if (diff <= 0) {
+            countdownDiv.innerHTML = '<div class="countdown-complete">🎉 Booking window is now open! Click "Check Booking Status" to refresh.</div>';
+            clearInterval(irctcCountdownInterval);
+            // Auto refresh the check after 2 seconds
+            setTimeout(() => {
+                const journeyInput = document.getElementById("journeyDate");
+                if (journeyInput && journeyInput.value) {
+                    checkIRCTCBooking();
+                }
+            }, 2000);
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        
+        countdownDiv.innerHTML = `
+            <div class="countdown-timer">
+                ⏰ Time until booking opens: 
+                <span class="countdown-value">${days}d ${hours}h ${minutes}m ${seconds}s</span>
+            </div>
+        `;
+    }, 1000);
+}
+
+// Auto refresh at 8 AM IST
+function scheduleIRCTCMidnightRefresh() {
+    const now = getISTDateTime();
+    const today = getTodayIST();
+    
+    // Next 8 AM
+    let next8AM = new Date(today);
+    next8AM.setHours(IRCTC_CONFIG.BOOKING_HOUR, IRCTC_CONFIG.BOOKING_MINUTE, 5, 0); // 5 seconds after 8 AM
+    
+    // If current time is past 8 AM today, schedule for tomorrow 8 AM
+    if (now >= next8AM) {
+        next8AM.setDate(next8AM.getDate() + 1);
+    }
+    
+    const msUntil8AM = next8AM - now;
+    
+    setTimeout(() => {
+        applyIRCTCDateLimit();
+        scheduleIRCTCMidnightRefresh();
+        
+        // Refresh if result is showing
+        const resultDiv = document.getElementById("irctcResult");
+        if (resultDiv && resultDiv.innerHTML) {
+            checkIRCTCBooking();
+        }
+    }, msUntil8AM);
+}
+
+// Initialize when tab is switched
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize IRCTC tool
+    initIRCTCTool();
+});
