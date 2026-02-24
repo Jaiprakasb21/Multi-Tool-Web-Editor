@@ -1,0 +1,38 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.propsanchal.com"
+        }
+      ],
+      "destination": "/irctc/index.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "propsanchal.com"
+        }
+      ],
+      "destination": "/irctc/index.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/tools/$1"
+    }
+  ]
+}
