@@ -10,9 +10,50 @@
       ],
       "destination": "https://www.propsanchal.com/",
       "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "propsanchal.com"
+        }
+      ],
+      "destination": "https://www.propsanchal.com/:path*",
+      "permanent": true
     }
   ],
   "rewrites": [
+    {
+      "source": "/about",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.propsanchal.com"
+        }
+      ],
+      "destination": "/irctc/about.html"
+    },
+    {
+      "source": "/contact",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.propsanchal.com"
+        }
+      ],
+      "destination": "/irctc/contact.html"
+    },
+    {
+      "source": "/privacy-policy",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.propsanchal.com"
+        }
+      ],
+      "destination": "/irctc/privacy-policy.html"
+    },
     {
       "source": "/",
       "has": [
@@ -22,6 +63,186 @@
         }
       ],
       "destination": "/irctc/index.html"
+    },
+    {
+      "source": "/json-formatter",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/json-compare",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/text-compare",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/image-editor",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/base64-converter",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/hash-generator",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/text-summary",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/file-analyzer",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/irctc-checker",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/jwt-decoder",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/url-encoder-decoder",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/timestamp-converter",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/uuid-generator",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/qr-code-generator",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/yaml-json-converter",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/csv-json-converter",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/xml-formatter",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/regex-tester",
+      "has": [
+        {
+          "type": "host",
+          "value": "tools.propsanchal.com"
+        }
+      ],
+      "destination": "/tools/index.html"
     },
     {
       "source": "/",

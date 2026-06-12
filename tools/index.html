@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
-    <link rel="shortcut icon" href="/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="shortcut icon" href="/favicon.svg">
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9463283499640795"
@@ -31,6 +29,15 @@
                 <button class="tab-btn" data-tab="text">Text Summary</button>
                 <button class="tab-btn" data-tab="fileAnalyzer">File Analyzer</button>
                 <button class="tab-btn" data-tab="irctc">IRCTC Checker</button>
+                <button class="tab-btn" data-tab="jwt">JWT Decoder</button>
+                <button class="tab-btn" data-tab="url">URL Tools</button>
+                <button class="tab-btn" data-tab="timestamp">Timestamp</button>
+                <button class="tab-btn" data-tab="uuid">UUID</button>
+                <button class="tab-btn" data-tab="qr">QR Code</button>
+                <button class="tab-btn" data-tab="yamlJson">YAML/JSON</button>
+                <button class="tab-btn" data-tab="csvJson">CSV/JSON</button>
+                <button class="tab-btn" data-tab="xml">XML Formatter</button>
+                <button class="tab-btn" data-tab="regex">Regex Tester</button>
             </div>
         </div>
         
@@ -440,6 +447,244 @@
             </div>
         </div>
 
+        <!-- JWT Decoder Section -->
+        <div id="jwtSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>JWT Decoder</h3>
+                        <button class="reset-btn" id="clearJwtBtn">Clear</button>
+                    </div>
+                    <textarea id="jwtInput" class="utility-textarea" placeholder="Paste JWT token..."></textarea>
+                    <div class="action-buttons">
+                        <button id="decodeJwtBtn">Decode JWT</button>
+                        <button id="copyJwtPayloadBtn" class="secondary-btn">Copy Payload</button>
+                    </div>
+                </div>
+                <div class="utility-panel">
+                    <h3>Decoded Token</h3>
+                    <div class="utility-output-grid">
+                        <div>
+                            <label>Header</label>
+                            <pre id="jwtHeaderOutput" class="utility-pre"></pre>
+                        </div>
+                        <div>
+                            <label>Payload</label>
+                            <pre id="jwtPayloadOutput" class="utility-pre"></pre>
+                        </div>
+                    </div>
+                    <div id="jwtStatusOutput" class="utility-status"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- URL Encoder/Decoder Section -->
+        <div id="urlSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>URL Encoder / Decoder</h3>
+                        <button class="reset-btn" id="clearUrlBtn">Clear</button>
+                    </div>
+                    <textarea id="urlInput" class="utility-textarea" placeholder="Enter URL or text..."></textarea>
+                    <div class="action-buttons">
+                        <button id="encodeUrlBtn">Encode</button>
+                        <button id="decodeUrlBtn">Decode</button>
+                        <button id="copyUrlOutputBtn" class="secondary-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="utility-panel">
+                    <h3>Result</h3>
+                    <textarea id="urlOutput" class="utility-textarea output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timestamp Converter Section -->
+        <div id="timestampSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>Timestamp Converter</h3>
+                        <button class="reset-btn" id="clearTimestampBtn">Clear</button>
+                    </div>
+                    <div class="utility-form-grid">
+                        <div class="input-group">
+                            <label>Unix Timestamp</label>
+                            <input type="text" id="timestampInput" placeholder="Seconds or milliseconds">
+                        </div>
+                        <div class="input-group">
+                            <label>Date & Time</label>
+                            <input type="datetime-local" id="dateTimeInput">
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="timestampNowBtn">Now</button>
+                        <button id="timestampToDateBtn">To Date</button>
+                        <button id="dateToTimestampBtn">To Timestamp</button>
+                    </div>
+                </div>
+                <div class="utility-panel">
+                    <h3>Result</h3>
+                    <pre id="timestampOutput" class="utility-pre"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- UUID Generator Section -->
+        <div id="uuidSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>UUID Generator</h3>
+                        <button class="reset-btn" id="clearUuidBtn">Clear</button>
+                    </div>
+                    <div class="input-group">
+                        <label>Count</label>
+                        <input type="number" id="uuidCount" min="1" max="100" value="5">
+                    </div>
+                    <div class="action-buttons">
+                        <button id="generateUuidBtn">Generate UUIDs</button>
+                        <button id="copyUuidBtn" class="secondary-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="utility-panel">
+                    <h3>UUIDs</h3>
+                    <textarea id="uuidOutput" class="utility-textarea output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR Code Generator Section -->
+        <div id="qrSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>QR Code Generator</h3>
+                        <button class="reset-btn" id="clearQrBtn">Clear</button>
+                    </div>
+                    <textarea id="qrInput" class="utility-textarea" placeholder="Enter text or URL..."></textarea>
+                    <div class="utility-form-grid">
+                        <div class="input-group">
+                            <label>Size</label>
+                            <input type="number" id="qrSize" min="160" max="640" step="40" value="280">
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="generateQrBtn">Generate QR</button>
+                        <button id="downloadQrBtn" class="secondary-btn">Download PNG</button>
+                    </div>
+                </div>
+                <div class="utility-panel qr-output-panel">
+                    <canvas id="qrCanvas" width="280" height="280"></canvas>
+                    <div id="qrStatus" class="utility-status"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- YAML/JSON Converter Section -->
+        <div id="yamlJsonSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>YAML / JSON Converter</h3>
+                        <button class="reset-btn" id="clearYamlJsonBtn">Clear</button>
+                    </div>
+                    <textarea id="yamlJsonInput" class="utility-textarea" placeholder="Paste YAML or JSON..."></textarea>
+                    <div class="action-buttons">
+                        <button id="yamlToJsonBtn">YAML to JSON</button>
+                        <button id="jsonToYamlBtn">JSON to YAML</button>
+                        <button id="copyYamlJsonBtn" class="secondary-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="utility-panel">
+                    <h3>Result</h3>
+                    <textarea id="yamlJsonOutput" class="utility-textarea output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSV/JSON Converter Section -->
+        <div id="csvJsonSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>CSV / JSON Converter</h3>
+                        <button class="reset-btn" id="clearCsvJsonBtn">Clear</button>
+                    </div>
+                    <textarea id="csvJsonInput" class="utility-textarea" placeholder="Paste CSV or JSON array..."></textarea>
+                    <div class="utility-form-grid">
+                        <div class="input-group">
+                            <label>Delimiter</label>
+                            <input type="text" id="csvDelimiter" maxlength="1" value=",">
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="csvToJsonBtn">CSV to JSON</button>
+                        <button id="jsonToCsvBtn">JSON to CSV</button>
+                        <button id="copyCsvJsonBtn" class="secondary-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="utility-panel">
+                    <h3>Result</h3>
+                    <textarea id="csvJsonOutput" class="utility-textarea output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- XML Formatter Section -->
+        <div id="xmlSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>XML Formatter</h3>
+                        <button class="reset-btn" id="clearXmlBtn">Clear</button>
+                    </div>
+                    <textarea id="xmlInput" class="utility-textarea" placeholder="Paste XML..."></textarea>
+                    <div class="action-buttons">
+                        <button id="formatXmlBtn">Format XML</button>
+                        <button id="minifyXmlBtn">Minify XML</button>
+                        <button id="copyXmlBtn" class="secondary-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="utility-panel">
+                    <h3>Result</h3>
+                    <textarea id="xmlOutput" class="utility-textarea output-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regex Tester Section -->
+        <div id="regexSection" class="section">
+            <div class="utility-container">
+                <div class="utility-panel">
+                    <div class="panel-header">
+                        <h3>Regex Tester</h3>
+                        <button class="reset-btn" id="clearRegexBtn">Clear</button>
+                    </div>
+                    <div class="utility-form-grid">
+                        <div class="input-group">
+                            <label>Pattern</label>
+                            <input type="text" id="regexPattern" placeholder="\\b\\w+\\b">
+                        </div>
+                        <div class="input-group">
+                            <label>Flags</label>
+                            <input type="text" id="regexFlags" value="g">
+                        </div>
+                    </div>
+                    <textarea id="regexText" class="utility-textarea" placeholder="Enter test text..."></textarea>
+                    <div class="action-buttons">
+                        <button id="runRegexBtn">Run Regex</button>
+                        <button id="copyRegexBtn" class="secondary-btn">Copy Matches</button>
+                    </div>
+                </div>
+                <div class="utility-panel">
+                    <h3>Matches</h3>
+                    <pre id="regexOutput" class="utility-pre"></pre>
+                </div>
+            </div>
+        </div>
+
         <!-- IRCTC Booking Window Checker Section -->
         <div id="irctcSection" class="section">
             <div class="irctc-container">
@@ -478,7 +723,7 @@
             <div class="image-upload-section">
                 <input type="file" id="imageInput" accept="image/*" style="display: none;">
                 <button id="uploadBtn" class="upload-btn">Upload Image</button>
-                <span id="fileName"></span>
+                <span id="imageFileName"></span>
             </div>
             
             <div class="image-editor">

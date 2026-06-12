@@ -48,9 +48,9 @@ Sitemap: https://www.propsanchal.com/sitemap.xml
 ### 3. Google Search Console Verification
 **Location:** `irctc/index.html` (in `<head>` section)
 
-**Added:**
+**Add after Google gives you a verification token:**
 ```html
-<meta name="google-site-verification" content="PASTE_YOUR_VERIFICATION_CODE_HERE" />
+<meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_TOKEN" />
 ```
 
 **Purpose:**

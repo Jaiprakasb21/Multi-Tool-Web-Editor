@@ -3,23 +3,80 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tab switching
     const tabButtons = document.querySelectorAll('.tab-btn');
     const sections = document.querySelectorAll('.section');
+    const toolRoutes = {
+        'json-formatter': 'json',
+        'json-compare': 'compare',
+        'text-compare': 'textCompare',
+        'image-editor': 'image',
+        'base64-converter': 'base64',
+        'hash-generator': 'hash',
+        'text-summary': 'text',
+        'file-analyzer': 'fileAnalyzer',
+        'irctc-checker': 'irctc',
+        'jwt-decoder': 'jwt',
+        'url-encoder-decoder': 'url',
+        'timestamp-converter': 'timestamp',
+        'uuid-generator': 'uuid',
+        'qr-code-generator': 'qr',
+        'yaml-json-converter': 'yamlJson',
+        'csv-json-converter': 'csvJson',
+        'xml-formatter': 'xml',
+        'regex-tester': 'regex'
+    };
+    const tabRoutes = Object.fromEntries(Object.entries(toolRoutes).map(([slug, tab]) => [tab, slug]));
+    const bindClick = (id, handler) => {
+        const element = document.getElementById(id);
+        if (element) element.addEventListener('click', handler);
+    };
+
+    function activateToolTab(tab, updateRoute = false, runCleanup = true) {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        sections.forEach(s => s.classList.remove('active'));
+
+        const activeButton = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+        const targetSection = document.getElementById(`${tab}Section`);
+        if (!activeButton || !targetSection) return;
+
+        activeButton.classList.add('active');
+        targetSection.classList.add('active');
+        if (runCleanup) {
+            cleanupInactiveSections(tab);
+        }
+
+        if (updateRoute) {
+            updateToolRoute(tab);
+        }
+    }
+
+    function getToolTabFromLocation() {
+        const hashSlug = window.location.hash.replace('#', '');
+        if (toolRoutes[hashSlug]) return toolRoutes[hashSlug];
+
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const lastPart = pathParts[pathParts.length - 1] || '';
+        const slug = lastPart.replace(/\.html$/, '');
+        return toolRoutes[slug] || 'json';
+    }
+
+    function updateToolRoute(tab) {
+        const slug = tabRoutes[tab] || 'json-formatter';
+        const cleanPathAllowed = window.location.hostname === 'tools.propsanchal.com';
+        const url = cleanPathAllowed ? `/${slug}` : `${window.location.pathname}#${slug}`;
+        window.history.pushState({ tab }, '', url);
+    }
 
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const tab = btn.getAttribute('data-tab');
-            
-            tabButtons.forEach(b => b.classList.remove('active'));
-            sections.forEach(s => s.classList.remove('active'));
-            
-            btn.classList.add('active');
-            const targetSection = document.getElementById(`${tab}Section`);
-            if (targetSection) {
-                targetSection.classList.add('active');
-                // Clean up previous section to free memory
-                cleanupInactiveSections(tab);
-            }
+            activateToolTab(tab, true);
         });
     });
+
+    window.addEventListener('popstate', () => {
+        activateToolTab(getToolTabFromLocation(), false);
+    });
+
+    activateToolTab(getToolTabFromLocation(), false, false);
 
     // JSON Formatter
     const jsonInput = document.getElementById('jsonInput');
@@ -192,6 +249,48 @@ document.addEventListener('DOMContentLoaded', function() {
     // Real-time analysis on input
     textAnalysisInput.addEventListener('input', analyzeText);
 
+    // Additional utility tools
+    bindClick('decodeJwtBtn', decodeJWT);
+    bindClick('copyJwtPayloadBtn', () => copyElementText('jwtPayloadOutput'));
+    bindClick('clearJwtBtn', clearJWT);
+
+    bindClick('encodeUrlBtn', () => transformURL('encode'));
+    bindClick('decodeUrlBtn', () => transformURL('decode'));
+    bindClick('copyUrlOutputBtn', () => copyElementText('urlOutput'));
+    bindClick('clearUrlBtn', clearURLTool);
+
+    bindClick('timestampNowBtn', setTimestampNow);
+    bindClick('timestampToDateBtn', timestampToDate);
+    bindClick('dateToTimestampBtn', dateToTimestamp);
+    bindClick('clearTimestampBtn', clearTimestampTool);
+
+    bindClick('generateUuidBtn', generateUUIDs);
+    bindClick('copyUuidBtn', () => copyElementText('uuidOutput'));
+    bindClick('clearUuidBtn', clearUUIDTool);
+
+    bindClick('generateQrBtn', generateQRCode);
+    bindClick('downloadQrBtn', downloadQRCode);
+    bindClick('clearQrBtn', clearQRCode);
+
+    bindClick('yamlToJsonBtn', yamlToJSON);
+    bindClick('jsonToYamlBtn', jsonToYAML);
+    bindClick('copyYamlJsonBtn', () => copyElementText('yamlJsonOutput'));
+    bindClick('clearYamlJsonBtn', clearYamlJsonTool);
+
+    bindClick('csvToJsonBtn', csvToJSON);
+    bindClick('jsonToCsvBtn', jsonToCSV);
+    bindClick('copyCsvJsonBtn', () => copyElementText('csvJsonOutput'));
+    bindClick('clearCsvJsonBtn', clearCsvJsonTool);
+
+    bindClick('formatXmlBtn', formatXMLTool);
+    bindClick('minifyXmlBtn', minifyXMLTool);
+    bindClick('copyXmlBtn', () => copyElementText('xmlOutput'));
+    bindClick('clearXmlBtn', clearXMLTool);
+
+    bindClick('runRegexBtn', runRegexTester);
+    bindClick('copyRegexBtn', () => copyElementText('regexOutput'));
+    bindClick('clearRegexBtn', clearRegexTool);
+
     // File Analyzer
     const fileAnalyzerInput = document.getElementById('fileAnalyzerInput');
     const fileDropArea = document.getElementById('fileDropArea');
@@ -235,6 +334,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Conversion buttons
     document.addEventListener('click', (e) => {
+        const jsonActionButton = e.target.closest('[data-json-action]');
+        if (jsonActionButton) {
+            handleJSONValueAction(jsonActionButton);
+            return;
+        }
+
         if (e.target.classList.contains('convert-btn')) {
             const format = e.target.getAttribute('data-format');
             convertFile(format);
@@ -244,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Image Editor
     const imageInput = document.getElementById('imageInput');
     const uploadBtn = document.getElementById('uploadBtn');
-    const fileName = document.getElementById('fileName');
+    const imageFileName = document.getElementById('imageFileName');
     const canvas = document.getElementById('imageCanvas');
     const ctx = canvas.getContext('2d');
 
@@ -271,6 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Global variables
 let parsedData = null;
+let jsonValueRegistry = new Map();
 let originalImage = null;
 let currentImage = null;
 let rotation = 0;
@@ -316,10 +422,11 @@ function formatJSON() {
     
     try {
         parsedData = JSON.parse(input);
+        jsonValueRegistry.clear();
         
         // Use requestAnimationFrame for smoother rendering
         requestAnimationFrame(() => {
-            jsonOutput.innerHTML = renderJSON(parsedData);
+            jsonOutput.innerHTML = renderJSON(parsedData, 0, '$');
             attachToggleListeners();
         });
     } catch (error) {
@@ -327,45 +434,48 @@ function formatJSON() {
     }
 }
 
-function renderJSON(data, level = 0) {
+function renderJSON(data, level = 0, path = '$') {
     const indent = level * 20;
     
     if (data === null) {
-        return `<span class="json-null">null</span>`;
+        return renderJSONValue(data, '<span class="json-null">null</span>', path);
     }
     
     if (typeof data === 'string') {
         // Truncate very long strings for performance
         const displayStr = data.length > 1000 ? data.substring(0, 1000) + '...' : data;
-        return `<span class="json-string">"${escapeHtml(displayStr)}"</span>`;
+        return renderJSONValue(data, `<span class="json-string">"${escapeHtml(displayStr)}"</span>`, path);
     }
     
     if (typeof data === 'number') {
-        return `<span class="json-number">${data}</span>`;
+        return renderJSONValue(data, `<span class="json-number">${data}</span>`, path);
     }
     
     if (typeof data === 'boolean') {
-        return `<span class="json-boolean">${data}</span>`;
+        return renderJSONValue(data, `<span class="json-boolean">${data}</span>`, path);
     }
     
     if (Array.isArray(data)) {
         if (data.length === 0) {
-            return '<span>[]</span>';
+            return renderJSONValue(data, '<span>[]</span>', path);
         }
         
         const id = generateId();
+        const valueId = registerJSONValue(data, path);
         let html = `<div class="json-line">`;
         html += `<span class="json-toggle" data-id="${id}">▼</span>`;
         html += `<span>[${data.length} items]</span>`;
+        html += renderJSONActions(valueId);
         html += `</div>`;
         html += `<div class="json-content" id="${id}" style="padding-left: ${indent + 20}px">`;
         
         // Limit rendering for very large arrays
         const maxItems = data.length > 100 ? 100 : data.length;
         for (let i = 0; i < maxItems; i++) {
+            const childPath = `${path}[${i}]`;
             html += `<div class="json-line">`;
             html += `<span class="json-key">[${i}]:</span> `;
-            html += renderJSON(data[i], level + 1);
+            html += renderJSON(data[i], level + 1, childPath);
             html += `</div>`;
         }
         
@@ -381,20 +491,23 @@ function renderJSON(data, level = 0) {
         const keys = Object.keys(data);
         
         if (keys.length === 0) {
-            return '<span>{}</span>';
+            return renderJSONValue(data, '<span>{}</span>', path);
         }
         
         const id = generateId();
+        const valueId = registerJSONValue(data, path);
         let html = `<div class="json-line">`;
         html += `<span class="json-toggle" data-id="${id}">▼</span>`;
         html += `<span>{${keys.length} keys}</span>`;
+        html += renderJSONActions(valueId);
         html += `</div>`;
         html += `<div class="json-content" id="${id}" style="padding-left: ${indent + 20}px">`;
         
         keys.forEach(key => {
+            const childPath = `${path}.${key}`;
             html += `<div class="json-line">`;
             html += `<span class="json-key">"${escapeHtml(key)}":</span> `;
-            html += renderJSON(data[key], level + 1);
+            html += renderJSON(data[key], level + 1, childPath);
             html += `</div>`;
         });
         
@@ -403,6 +516,158 @@ function renderJSON(data, level = 0) {
     }
     
     return String(data);
+}
+
+function renderJSONValue(value, valueMarkup, path) {
+    const valueId = registerJSONValue(value, path);
+    return `<span class="json-value-wrap" data-json-value-id="${valueId}">${valueMarkup}${renderJSONActions(valueId)}</span>`;
+}
+
+function registerJSONValue(value, path) {
+    const id = generateId();
+    jsonValueRegistry.set(id, {
+        value,
+        path,
+        copyValue: getJSONCopyValue(value),
+        file: getPreviewableBase64File(value)
+    });
+    return id;
+}
+
+function getJSONCopyValue(value) {
+    if (typeof value === 'string') return value;
+    if (value === null) return 'null';
+    if (typeof value === 'object') return JSON.stringify(value, null, 2);
+    return String(value);
+}
+
+function renderJSONActions(valueId) {
+    const valueRecord = jsonValueRegistry.get(valueId);
+    const fileActions = valueRecord && valueRecord.file ? `
+        <button type="button" class="json-action-btn" data-json-action="preview" data-json-value-id="${valueId}" title="Show file preview">Show File</button>
+        <button type="button" class="json-icon-btn" data-json-action="download" data-json-value-id="${valueId}" title="Download file">↓</button>
+    ` : '';
+
+    return `
+        <span class="json-value-actions">
+            <button type="button" class="json-action-btn" data-json-action="copy" data-json-value-id="${valueId}" title="Copy full value">Copy</button>
+            ${fileActions}
+        </span>
+    `;
+}
+
+function getPreviewableBase64File(value) {
+    if (typeof value !== 'string') return null;
+
+    try {
+        const processed = processBase64(value.trim());
+        const isPreviewable = processed.mimeType.startsWith('image/') || processed.mimeType === 'application/pdf';
+        if (!isPreviewable) return null;
+
+        return {
+            dataUrl: processed.dataUrl,
+            mimeType: processed.mimeType,
+            extension: getExtensionFromMime(processed.mimeType)
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
+function handleJSONValueAction(button) {
+    const action = button.getAttribute('data-json-action');
+
+    if (action === 'close-preview') {
+        const preview = button.closest('.json-inline-preview');
+        if (preview) preview.remove();
+        return;
+    }
+
+    const valueId = button.getAttribute('data-json-value-id');
+    const valueRecord = jsonValueRegistry.get(valueId);
+    if (!valueRecord) {
+        alert('This JSON value is no longer available. Please format the JSON again.');
+        return;
+    }
+
+    if (action === 'copy') {
+        copyJSONValue(valueRecord, button);
+    } else if (action === 'preview') {
+        showJSONFilePreview(valueId, valueRecord, button);
+    } else if (action === 'download') {
+        downloadJSONFile(valueRecord);
+    }
+}
+
+function copyJSONValue(valueRecord, button) {
+    navigator.clipboard.writeText(valueRecord.copyValue).then(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Copied';
+        button.disabled = true;
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.disabled = false;
+        }, 1600);
+    }).catch(() => {
+        alert('Unable to copy value. Please try again.');
+    });
+}
+
+function showJSONFilePreview(valueId, valueRecord, button) {
+    if (!valueRecord.file) return;
+
+    const existingPreview = jsonOutput.querySelector(`[data-json-preview-for="${valueId}"]`);
+    if (existingPreview) {
+        existingPreview.remove();
+    }
+
+    const file = valueRecord.file;
+    const previewBody = file.mimeType === 'application/pdf'
+        ? `<embed src="${file.dataUrl}" type="application/pdf" class="json-inline-preview-pdf">`
+        : `<img src="${file.dataUrl}" alt="Decoded JSON value preview" class="json-inline-preview-image">`;
+
+    const previewHTML = `
+        <div class="json-inline-preview" data-json-preview-for="${valueId}">
+            <div class="json-inline-preview-header">
+                <span>${escapeHtml(file.mimeType)}</span>
+                <div class="json-inline-preview-actions">
+                    <button type="button" class="json-icon-btn" data-json-action="download" data-json-value-id="${valueId}" title="Download file">↓</button>
+                    <button type="button" class="json-action-btn" data-json-action="close-preview">Close</button>
+                </div>
+            </div>
+            ${previewBody}
+        </div>
+    `;
+
+    const line = button.closest('.json-line');
+    if (line) {
+        line.insertAdjacentHTML('afterend', previewHTML);
+    } else {
+        button.closest('.json-value-wrap').insertAdjacentHTML('afterend', previewHTML);
+    }
+}
+
+function downloadJSONFile(valueRecord) {
+    if (!valueRecord.file) return;
+
+    const link = document.createElement('a');
+    const cleanPath = valueRecord.path.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'json-value';
+    link.href = valueRecord.file.dataUrl;
+    link.download = `${cleanPath}.${valueRecord.file.extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function getExtensionFromMime(mimeType) {
+    const extensions = {
+        'image/png': 'png',
+        'image/jpeg': 'jpg',
+        'image/gif': 'gif',
+        'image/webp': 'webp',
+        'application/pdf': 'pdf'
+    };
+    return extensions[mimeType] || 'bin';
 }
 
 function attachToggleListeners() {
@@ -1019,6 +1284,7 @@ function previewBase64File() {
 }
 
 function processBase64(base64) {
+    base64 = (base64 || '').trim();
     // Check if it's a data URL or raw base64
     let dataUrl = base64;
     let mimeType = 'application/octet-stream';
@@ -1028,27 +1294,27 @@ function processBase64(base64) {
         const mimeMatch = dataUrl.match(/data:([^;]+);base64,/);
         mimeType = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
     } else {
+        const compactBase64 = base64.replace(/\s/g, '');
         // Try to detect file type from base64 signature
-        const signature = base64.substring(0, 20);
+        const signature = compactBase64.substring(0, 20);
         if (signature.startsWith('iVBORw0KGgo')) {
             mimeType = 'image/png';
-            dataUrl = 'data:image/png;base64,' + base64;
+            dataUrl = 'data:image/png;base64,' + compactBase64;
         } else if (signature.startsWith('/9j/')) {
             mimeType = 'image/jpeg';
-            dataUrl = 'data:image/jpeg;base64,' + base64;
+            dataUrl = 'data:image/jpeg;base64,' + compactBase64;
         } else if (signature.startsWith('R0lGODlh') || signature.startsWith('R0lGODdh')) {
             mimeType = 'image/gif';
-            dataUrl = 'data:image/gif;base64,' + base64;
+            dataUrl = 'data:image/gif;base64,' + compactBase64;
         } else if (signature.startsWith('UklGR')) {
             mimeType = 'image/webp';
-            dataUrl = 'data:image/webp;base64,' + base64;
+            dataUrl = 'data:image/webp;base64,' + compactBase64;
         } else if (signature.startsWith('JVBERi0')) {
             mimeType = 'application/pdf';
-            dataUrl = 'data:application/pdf;base64,' + base64;
+            dataUrl = 'data:application/pdf;base64,' + compactBase64;
         } else {
-            // Default to PNG if unknown
-            mimeType = 'image/png';
-            dataUrl = 'data:image/png;base64,' + base64;
+            mimeType = 'application/octet-stream';
+            dataUrl = 'data:application/octet-stream;base64,' + compactBase64;
         }
     }
     
@@ -1186,7 +1452,7 @@ function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
     
-    fileName.textContent = file.name;
+    imageFileName.textContent = file.name;
     
     const reader = new FileReader();
     reader.onload = function(event) {
@@ -1620,6 +1886,655 @@ function resetTextAnalysis() {
     document.getElementById('spaceCount').textContent = '0';
     document.getElementById('specialCharCount').textContent = '0';
     document.getElementById('letterFrequencyChart').innerHTML = '';
+}
+
+// Additional Utility Tool Functions
+function getElementTextValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value : '';
+}
+
+function setElementTextValue(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.value = value;
+}
+
+function setElementTextContent(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+}
+
+function copyElementText(id) {
+    const element = document.getElementById(id);
+    if (!element) return;
+
+    const text = 'value' in element ? element.value : element.textContent;
+    if (!text) {
+        alert('Nothing to copy');
+        return;
+    }
+
+    navigator.clipboard.writeText(text).catch(() => {
+        alert('Unable to copy. Please try again.');
+    });
+}
+
+function base64UrlDecode(input) {
+    const normalized = input.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+}
+
+function decodeJWT() {
+    const token = getElementTextValue('jwtInput').trim();
+    const parts = token.split('.');
+
+    if (parts.length < 2) {
+        setElementTextContent('jwtStatusOutput', 'Invalid JWT structure');
+        return;
+    }
+
+    try {
+        const header = JSON.parse(base64UrlDecode(parts[0]));
+        const payload = JSON.parse(base64UrlDecode(parts[1]));
+        setElementTextContent('jwtHeaderOutput', JSON.stringify(header, null, 2));
+        setElementTextContent('jwtPayloadOutput', JSON.stringify(payload, null, 2));
+
+        const status = [];
+        if (payload.iat) status.push(`Issued: ${new Date(payload.iat * 1000).toLocaleString()}`);
+        if (payload.exp) {
+            const expires = new Date(payload.exp * 1000);
+            status.push(`Expires: ${expires.toLocaleString()}`);
+            status.push(expires < new Date() ? 'Status: expired' : 'Status: active');
+        }
+        setElementTextContent('jwtStatusOutput', status.join('\n'));
+    } catch (error) {
+        setElementTextContent('jwtStatusOutput', `Unable to decode JWT: ${error.message}`);
+    }
+}
+
+function clearJWT() {
+    setElementTextValue('jwtInput', '');
+    setElementTextContent('jwtHeaderOutput', '');
+    setElementTextContent('jwtPayloadOutput', '');
+    setElementTextContent('jwtStatusOutput', '');
+}
+
+function transformURL(mode) {
+    const input = getElementTextValue('urlInput');
+    try {
+        const output = mode === 'encode' ? encodeURIComponent(input) : decodeURIComponent(input);
+        setElementTextValue('urlOutput', output);
+    } catch (error) {
+        setElementTextValue('urlOutput', `Invalid URL encoding: ${error.message}`);
+    }
+}
+
+function clearURLTool() {
+    setElementTextValue('urlInput', '');
+    setElementTextValue('urlOutput', '');
+}
+
+function describeDate(date) {
+    return [
+        `Local: ${date.toLocaleString()}`,
+        `UTC: ${date.toISOString()}`,
+        `Unix seconds: ${Math.floor(date.getTime() / 1000)}`,
+        `Unix milliseconds: ${date.getTime()}`
+    ].join('\n');
+}
+
+function setTimestampNow() {
+    const now = new Date();
+    setElementTextValue('timestampInput', String(Math.floor(now.getTime() / 1000)));
+    setElementTextValue('dateTimeInput', toDateTimeLocalValue(now));
+    setElementTextContent('timestampOutput', describeDate(now));
+}
+
+function timestampToDate() {
+    const raw = getElementTextValue('timestampInput').trim();
+    const value = Number(raw);
+    if (!Number.isFinite(value)) {
+        setElementTextContent('timestampOutput', 'Enter a valid numeric timestamp');
+        return;
+    }
+
+    const ms = Math.abs(value) < 100000000000 ? value * 1000 : value;
+    const date = new Date(ms);
+    setElementTextValue('dateTimeInput', toDateTimeLocalValue(date));
+    setElementTextContent('timestampOutput', describeDate(date));
+}
+
+function dateToTimestamp() {
+    const raw = getElementTextValue('dateTimeInput');
+    if (!raw) {
+        setElementTextContent('timestampOutput', 'Select a date and time');
+        return;
+    }
+
+    const date = new Date(raw);
+    setElementTextValue('timestampInput', String(Math.floor(date.getTime() / 1000)));
+    setElementTextContent('timestampOutput', describeDate(date));
+}
+
+function toDateTimeLocalValue(date) {
+    const offsetMs = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+}
+
+function clearTimestampTool() {
+    setElementTextValue('timestampInput', '');
+    setElementTextValue('dateTimeInput', '');
+    setElementTextContent('timestampOutput', '');
+}
+
+function generateUUIDs() {
+    const countInput = document.getElementById('uuidCount');
+    const count = Math.min(100, Math.max(1, Number(countInput.value) || 1));
+    countInput.value = count;
+
+    const ids = Array.from({ length: count }, () => {
+        if (crypto.randomUUID) return crypto.randomUUID();
+        return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    });
+    setElementTextValue('uuidOutput', ids.join('\n'));
+}
+
+function clearUUIDTool() {
+    setElementTextValue('uuidOutput', '');
+    const countInput = document.getElementById('uuidCount');
+    if (countInput) countInput.value = 5;
+}
+
+function generateQRCode() {
+    const input = getElementTextValue('qrInput');
+    const status = document.getElementById('qrStatus');
+    const canvas = document.getElementById('qrCanvas');
+    const sizeInput = document.getElementById('qrSize');
+    const size = Math.min(640, Math.max(160, Number(sizeInput.value) || 280));
+    sizeInput.value = size;
+
+    if (!input) {
+        if (status) status.textContent = 'Enter text or a URL';
+        return;
+    }
+
+    try {
+        const matrix = createQRCodeMatrix(input);
+        drawQRMatrix(canvas, matrix, size);
+        if (status) status.textContent = `${matrix.length} x ${matrix.length} modules`;
+    } catch (error) {
+        if (status) status.textContent = error.message;
+    }
+}
+
+function downloadQRCode() {
+    const canvas = document.getElementById('qrCanvas');
+    if (!canvas) return;
+
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = 'qr-code.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function clearQRCode() {
+    setElementTextValue('qrInput', '');
+    setElementTextContent('qrStatus', '');
+    const canvas = document.getElementById('qrCanvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function createQRCodeMatrix(text) {
+    const bytes = Array.from(new TextEncoder().encode(text));
+    const versions = [
+        { version: 1, dataCodewords: 19, eccCodewords: 7, maxBytes: 17, alignment: [] },
+        { version: 2, dataCodewords: 34, eccCodewords: 10, maxBytes: 32, alignment: [18] },
+        { version: 3, dataCodewords: 55, eccCodewords: 15, maxBytes: 53, alignment: [22] },
+        { version: 4, dataCodewords: 80, eccCodewords: 20, maxBytes: 78, alignment: [26] }
+    ];
+    const config = versions.find(item => bytes.length <= item.maxBytes);
+    if (!config) throw new Error('QR input is too long. Use 78 bytes or fewer.');
+
+    const dataCodewords = makeQRDataCodewords(bytes, config);
+    const ecc = reedSolomonCompute(dataCodewords, config.eccCodewords);
+    const codewords = dataCodewords.concat(ecc);
+    return makeQRMatrix(codewords, config);
+}
+
+function makeQRDataCodewords(bytes, config) {
+    const bits = [];
+    appendBits(bits, 0b0100, 4);
+    appendBits(bits, bytes.length, 8);
+    bytes.forEach(byte => appendBits(bits, byte, 8));
+
+    const capacityBits = config.dataCodewords * 8;
+    appendBits(bits, 0, Math.min(4, capacityBits - bits.length));
+    while (bits.length % 8 !== 0) bits.push(0);
+
+    const data = [];
+    for (let i = 0; i < bits.length; i += 8) {
+        data.push(bits.slice(i, i + 8).reduce((acc, bit) => (acc << 1) | bit, 0));
+    }
+    for (let pad = 0; data.length < config.dataCodewords; pad++) {
+        data.push(pad % 2 === 0 ? 0xec : 0x11);
+    }
+    return data;
+}
+
+function appendBits(bits, value, length) {
+    for (let i = length - 1; i >= 0; i--) {
+        bits.push((value >>> i) & 1);
+    }
+}
+
+function makeQRMatrix(codewords, config) {
+    const size = 21 + (config.version - 1) * 4;
+    const modules = Array.from({ length: size }, () => Array(size).fill(false));
+    const reserved = Array.from({ length: size }, () => Array(size).fill(false));
+    const set = (x, y, value, reserve = true) => {
+        if (x < 0 || y < 0 || x >= size || y >= size) return;
+        modules[y][x] = Boolean(value);
+        if (reserve) reserved[y][x] = true;
+    };
+
+    drawFinder(set, 0, 0);
+    drawFinder(set, size - 7, 0);
+    drawFinder(set, 0, size - 7);
+    drawTiming(set, size);
+    config.alignment.forEach(center => drawAlignment(set, center, center));
+    reserveFormatAreas(reserved, size);
+    set(8, size - 8, true);
+
+    const bits = codewords.flatMap(codeword => {
+        const codewordBits = [];
+        appendBits(codewordBits, codeword, 8);
+        return codewordBits;
+    });
+
+    let bitIndex = 0;
+    let upward = true;
+    for (let right = size - 1; right >= 1; right -= 2) {
+        if (right === 6) right--;
+        for (let vert = 0; vert < size; vert++) {
+            const y = upward ? size - 1 - vert : vert;
+            for (let dx = 0; dx < 2; dx++) {
+                const x = right - dx;
+                if (reserved[y][x]) continue;
+                const bit = bitIndex < bits.length ? bits[bitIndex++] : 0;
+                const masked = bit ^ (((x + y) % 2) === 0 ? 1 : 0);
+                set(x, y, masked, false);
+            }
+        }
+        upward = !upward;
+    }
+
+    drawFormatBits(set, size, 0);
+    return modules;
+}
+
+function drawFinder(set, x, y) {
+    for (let dy = -1; dy <= 7; dy++) {
+        for (let dx = -1; dx <= 7; dx++) {
+            const xx = x + dx;
+            const yy = y + dy;
+            const inPattern = dx >= 0 && dx <= 6 && dy >= 0 && dy <= 6;
+            const black = inPattern && (dx === 0 || dx === 6 || dy === 0 || dy === 6 || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4));
+            set(xx, yy, black);
+        }
+    }
+}
+
+function drawTiming(set, size) {
+    for (let i = 8; i < size - 8; i++) {
+        set(i, 6, i % 2 === 0);
+        set(6, i, i % 2 === 0);
+    }
+}
+
+function drawAlignment(set, cx, cy) {
+    for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+            const distance = Math.max(Math.abs(dx), Math.abs(dy));
+            set(cx + dx, cy + dy, distance !== 1);
+        }
+    }
+}
+
+function reserveFormatAreas(reserved, size) {
+    const reserve = (x, y) => {
+        if (x >= 0 && y >= 0 && x < size && y < size) reserved[y][x] = true;
+    };
+
+    for (let i = 0; i <= 5; i++) reserve(8, i);
+    reserve(8, 7);
+    reserve(8, 8);
+    reserve(7, 8);
+    for (let i = 9; i < 15; i++) reserve(14 - i, 8);
+    for (let i = 0; i < 8; i++) reserve(size - 1 - i, 8);
+    for (let i = 8; i < 15; i++) reserve(8, size - 15 + i);
+}
+
+function drawFormatBits(set, size, mask) {
+    const bits = getFormatBits(mask);
+    const bitAt = i => ((bits >>> i) & 1) === 1;
+
+    for (let i = 0; i <= 5; i++) set(8, i, bitAt(i));
+    set(8, 7, bitAt(6));
+    set(8, 8, bitAt(7));
+    set(7, 8, bitAt(8));
+    for (let i = 9; i < 15; i++) set(14 - i, 8, bitAt(i));
+    for (let i = 0; i < 8; i++) set(size - 1 - i, 8, bitAt(i));
+    for (let i = 8; i < 15; i++) set(8, size - 15 + i, bitAt(i));
+    set(8, size - 8, true);
+}
+
+function getFormatBits(mask) {
+    let data = (1 << 3) | mask; // Error correction level L.
+    let bits = data << 10;
+    const generator = 0x537;
+    for (let i = 14; i >= 10; i--) {
+        if (((bits >>> i) & 1) !== 0) bits ^= generator << (i - 10);
+    }
+    return ((data << 10) | bits) ^ 0x5412;
+}
+
+function reedSolomonCompute(data, degree) {
+    const generator = reedSolomonGenerator(degree);
+    const result = Array(degree).fill(0);
+    data.forEach(byte => {
+        const factor = byte ^ result.shift();
+        result.push(0);
+        generator.forEach((coef, index) => {
+            result[index] ^= gfMultiply(coef, factor);
+        });
+    });
+    return result;
+}
+
+function reedSolomonGenerator(degree) {
+    let result = [1];
+    for (let i = 0; i < degree; i++) {
+        const next = Array(result.length + 1).fill(0);
+        result.forEach((coef, index) => {
+            next[index] ^= gfMultiply(coef, 1);
+            next[index + 1] ^= gfMultiply(coef, gfPow(2, i));
+        });
+        result = next;
+    }
+    return result.slice(1);
+}
+
+function gfMultiply(x, y) {
+    let result = 0;
+    while (y !== 0) {
+        if (y & 1) result ^= x;
+        x <<= 1;
+        if (x & 0x100) x ^= 0x11d;
+        y >>>= 1;
+    }
+    return result;
+}
+
+function gfPow(x, power) {
+    let result = 1;
+    for (let i = 0; i < power; i++) result = gfMultiply(result, x);
+    return result;
+}
+
+function drawQRMatrix(canvas, matrix, size) {
+    const quietZone = 4;
+    const modules = matrix.length + quietZone * 2;
+    const scale = Math.floor(size / modules);
+    const canvasSize = scale * modules;
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
+
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasSize, canvasSize);
+    ctx.fillStyle = '#111827';
+
+    matrix.forEach((row, y) => {
+        row.forEach((dark, x) => {
+            if (dark) {
+                ctx.fillRect((x + quietZone) * scale, (y + quietZone) * scale, scale, scale);
+            }
+        });
+    });
+}
+
+function parseYamlScalar(value) {
+    const trimmed = value.trim();
+    if (trimmed === 'true') return true;
+    if (trimmed === 'false') return false;
+    if (trimmed === 'null' || trimmed === '~') return null;
+    if (/^-?\d+(\.\d+)?$/.test(trimmed)) return Number(trimmed);
+    if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+        return trimmed.slice(1, -1);
+    }
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+        return trimmed.slice(1, -1).split(',').map(item => parseYamlScalar(item));
+    }
+    return trimmed;
+}
+
+function parseSimpleYAML(input) {
+    const root = {};
+    const stack = [{ indent: -1, value: root }];
+    const lines = input.split(/\r?\n/).filter(line => line.trim() && !line.trim().startsWith('#'));
+
+    lines.forEach(line => {
+        const indent = line.match(/^\s*/)[0].length;
+        const trimmed = line.trim();
+        const match = trimmed.match(/^([^:]+):(.*)$/);
+        if (!match) throw new Error(`Unsupported YAML line: ${trimmed}`);
+
+        while (stack.length > 1 && indent <= stack[stack.length - 1].indent) stack.pop();
+        const parent = stack[stack.length - 1].value;
+        const key = match[1].trim();
+        const rawValue = match[2].trim();
+
+        if (!rawValue) {
+            parent[key] = {};
+            stack.push({ indent, value: parent[key] });
+        } else {
+            parent[key] = parseYamlScalar(rawValue);
+        }
+    });
+
+    return root;
+}
+
+function yamlToJSON() {
+    try {
+        const parsed = parseSimpleYAML(getElementTextValue('yamlJsonInput'));
+        setElementTextValue('yamlJsonOutput', JSON.stringify(parsed, null, 2));
+    } catch (error) {
+        setElementTextValue('yamlJsonOutput', `YAML parse error: ${error.message}`);
+    }
+}
+
+function jsonToYAML() {
+    try {
+        const parsed = JSON.parse(getElementTextValue('yamlJsonInput'));
+        setElementTextValue('yamlJsonOutput', objectToYAML(parsed));
+    } catch (error) {
+        setElementTextValue('yamlJsonOutput', `JSON parse error: ${error.message}`);
+    }
+}
+
+function objectToYAML(value, indent = 0) {
+    const pad = '  '.repeat(indent);
+    if (Array.isArray(value)) {
+        return value.map(item => `${pad}- ${typeof item === 'object' && item !== null ? `\n${objectToYAML(item, indent + 1)}` : formatYamlScalar(item)}`).join('\n');
+    }
+    if (value && typeof value === 'object') {
+        return Object.entries(value).map(([key, item]) => {
+            if (item && typeof item === 'object') {
+                return `${pad}${key}:\n${objectToYAML(item, indent + 1)}`;
+            }
+            return `${pad}${key}: ${formatYamlScalar(item)}`;
+        }).join('\n');
+    }
+    return `${pad}${formatYamlScalar(value)}`;
+}
+
+function formatYamlScalar(value) {
+    if (value === null) return 'null';
+    if (typeof value === 'string') {
+        return /[:#\n]/.test(value) ? JSON.stringify(value) : value;
+    }
+    return String(value);
+}
+
+function clearYamlJsonTool() {
+    setElementTextValue('yamlJsonInput', '');
+    setElementTextValue('yamlJsonOutput', '');
+}
+
+function parseCSV(input, delimiter = ',') {
+    const rows = [];
+    let row = [];
+    let field = '';
+    let quoted = false;
+
+    for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const next = input[i + 1];
+
+        if (char === '"' && quoted && next === '"') {
+            field += '"';
+            i++;
+        } else if (char === '"') {
+            quoted = !quoted;
+        } else if (char === delimiter && !quoted) {
+            row.push(field);
+            field = '';
+        } else if ((char === '\n' || char === '\r') && !quoted) {
+            if (char === '\r' && next === '\n') i++;
+            row.push(field);
+            rows.push(row);
+            row = [];
+            field = '';
+        } else {
+            field += char;
+        }
+    }
+
+    row.push(field);
+    if (row.length > 1 || row[0] !== '') rows.push(row);
+    return rows;
+}
+
+function csvToJSON() {
+    try {
+        const delimiter = getElementTextValue('csvDelimiter') || ',';
+        const rows = parseCSV(getElementTextValue('csvJsonInput'), delimiter);
+        if (rows.length === 0) throw new Error('CSV has no rows');
+        const headers = rows[0].map(header => header.trim());
+        const data = rows.slice(1).map(row => Object.fromEntries(headers.map((header, index) => [header, row[index] || ''])));
+        setElementTextValue('csvJsonOutput', JSON.stringify(data, null, 2));
+    } catch (error) {
+        setElementTextValue('csvJsonOutput', `CSV parse error: ${error.message}`);
+    }
+}
+
+function jsonToCSV() {
+    try {
+        const delimiter = getElementTextValue('csvDelimiter') || ',';
+        const data = JSON.parse(getElementTextValue('csvJsonInput'));
+        const rows = Array.isArray(data) ? data : [data];
+        const headers = Array.from(rows.reduce((set, row) => {
+            Object.keys(row || {}).forEach(key => set.add(key));
+            return set;
+        }, new Set()));
+        const csvRows = [headers, ...rows.map(row => headers.map(header => row ? row[header] : ''))];
+        setElementTextValue('csvJsonOutput', csvRows.map(row => row.map(value => escapeCSVValue(value, delimiter)).join(delimiter)).join('\n'));
+    } catch (error) {
+        setElementTextValue('csvJsonOutput', `JSON parse error: ${error.message}`);
+    }
+}
+
+function escapeCSVValue(value, delimiter) {
+    const text = value == null ? '' : String(value);
+    return text.includes('"') || text.includes('\n') || text.includes(delimiter)
+        ? `"${text.replace(/"/g, '""')}"`
+        : text;
+}
+
+function clearCsvJsonTool() {
+    setElementTextValue('csvJsonInput', '');
+    setElementTextValue('csvJsonOutput', '');
+    setElementTextValue('csvDelimiter', ',');
+}
+
+function formatXMLTool() {
+    const input = getElementTextValue('xmlInput').trim();
+    try {
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(input, 'application/xml');
+        if (xml.querySelector('parsererror')) throw new Error('Invalid XML');
+        const formatted = input.replace(/>\s*</g, '><').replace(/></g, '>\n<');
+        let indent = 0;
+        const output = formatted.split('\n').map(line => {
+            if (/^<\/.+>/.test(line)) indent = Math.max(indent - 1, 0);
+            const padded = `${'  '.repeat(indent)}${line}`;
+            if (/^<[^!?/][^>]*[^/]>.*/.test(line) && !line.includes(`</`)) indent++;
+            return padded;
+        }).join('\n');
+        setElementTextValue('xmlOutput', output);
+    } catch (error) {
+        setElementTextValue('xmlOutput', `XML error: ${error.message}`);
+    }
+}
+
+function minifyXMLTool() {
+    setElementTextValue('xmlOutput', getElementTextValue('xmlInput').replace(/>\s+</g, '><').trim());
+}
+
+function clearXMLTool() {
+    setElementTextValue('xmlInput', '');
+    setElementTextValue('xmlOutput', '');
+}
+
+function runRegexTester() {
+    const pattern = getElementTextValue('regexPattern');
+    const flags = Array.from(new Set((getElementTextValue('regexFlags') || 'g').split(''))).join('');
+    const text = getElementTextValue('regexText');
+
+    try {
+        const regex = new RegExp(pattern, flags.includes('g') ? flags : `${flags}g`);
+        const matches = [];
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            matches.push({
+                match: match[0],
+                index: match.index,
+                groups: match.slice(1)
+            });
+            if (match[0] === '') regex.lastIndex++;
+        }
+        setElementTextContent('regexOutput', JSON.stringify({ count: matches.length, matches }, null, 2));
+    } catch (error) {
+        setElementTextContent('regexOutput', `Regex error: ${error.message}`);
+    }
+}
+
+function clearRegexTool() {
+    setElementTextValue('regexPattern', '');
+    setElementTextValue('regexFlags', 'g');
+    setElementTextValue('regexText', '');
+    setElementTextContent('regexOutput', '');
 }
 
 

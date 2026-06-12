@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="IRCTC Booking Window Checker">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2d3748"/>
+      <stop offset="1" stop-color="#667eea"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="76" y="118" width="216" height="216" rx="30" fill="#fff"/>
+  <path d="M145 168h78c28 0 45 17 45 42s-17 42-45 42h-36v43h-42V168Zm42 35v25h35c10 0 17-4 17-13s-7-12-17-12h-35Z" fill="#667eea"/>
+  <text x="340" y="215" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="700">IRCTC Booking Window Checker</text>
+  <text x="340" y="290" fill="#c6f6d5" font-family="Segoe UI, Arial, sans-serif" font-size="34">Check 60 days advance reservation status</text>
+  <text x="340" y="365" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">Booking opens daily at 8:00 AM IST</text>
+  <rect x="340" y="426" width="250" height="72" rx="12" fill="#48bb78"/>
+  <text x="382" y="473" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Free Tool</text>
+  <rect x="620" y="426" width="350" height="72" rx="12" fill="#fff" opacity=".92"/>
+  <text x="660" y="473" fill="#2d3748" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">propsanchal.com</text>
+</svg>
